@@ -17,8 +17,3 @@ sudo apt-get build-dep -y python-psycopg2
 sudo easy_install -y psycopg2
 echo "host    all             all             all                     trust" >> "$PG_HBA"
 service postgresql restart
-sudo apt-get -y install mysql-server
-sudo apt-get -y install python-mysqldb
-sudo apt-get -y install python-pip
-sudo apt-get -y install libmysqlclient-dev
-sudo pip install --allow-external mysql-connector-python mysql-connector-python
