@@ -8,6 +8,8 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('USERINFO', UserInfo)
 		self.addForm('ADDDB', AddDB)
 		self.addForm('LISTDB', ListDB)
+		self.addForm('SQLQRY', SQLQuery)
+		self.addForm('VIEWTB', BrowseTable)
     	self.addForm('EDITDB', EditDB)
     	self.addForm('QRYDB', QryDB)
     	self.addForm('IMPORTDB', ImportDB)
@@ -24,6 +26,8 @@ class MainMenu(npyscreen.FormBaseNewWithMenus):
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
 		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
 		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
+		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
+		self.menu.addItem(text="Browse Table", onSelect=self.BrowseTable)
 		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
@@ -40,6 +44,12 @@ class MainMenu(npyscreen.FormBaseNewWithMenus):
 	def listDB(self):
 		self.parentApp.switchForm('LISTDB')
 	
+	def SQLQuery(self):
+		self.parentApp.switchForm('SQLQRY')
+		
+	def BrowseTable(self):
+		self.parentApp.switchForm('VIEWTB')
+		
 	def modDB(self):
 		self.parentApp.switchForm('EDITDB')
 	
@@ -177,6 +187,28 @@ class ListDB(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
+#Execute a query
+class SQLQuery(npyscreen.Form):
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Enter a Query")
+		self.query = self.add(npyscreen.MultiLineEdit,
+			value="""Enter query here!""", max_height=5, rely=9)
+	
+	def afterEditing(self):
+		msg = executeQuery(self.query.value)
+		npyscreen.notify_confirm(msg)
+		self.parentApp.switchFormPrevious()
+		
+#Get all values from table
+class BrowseTable(npyscreen.Form):
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Browse Table")
+		grid = self.add(npyscreen.GridColTitles)
+		data = selectAll('zombie')
+		grid.values = data
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
+		
 #PostgreSQL functions
 def getDatabaseNames():
 	con = None
@@ -214,6 +246,44 @@ def createDB(dbname, owner):
 	finally:
 		if con:
 			con.close()
+		return msg
+		
+def selectAll(table):
+	con = None
+	output = []
+	try:
+		con = psycopg2.connect(dbname="movies", user="postgres")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		cur = con.cursor()
+		cur.execute("SELECT * FROM zombie")
+		output.append(cols)
+		values = cur.fetchall()
+		for row in values:
+			output.append(row)
+	except psycopg2.DatabaseError, e:
+		if con:
+			con.rollback()
+		print "Error fetching data"
+	finally:
+		if con:
+				con.close()
+		return output
+		
+def executeQuery(query):
+	con = None
+	msg = 'Successfully executed query!'
+	try:
+		con = psycopg2.connect(dbname="movies", user="postgres")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		cur = con.cursor()
+		cur.execute(query)
+	except psycopg2.DatabaseError, e:
+		if con:
+			con.rollback()
+		msg = 'Error: ' + e
+	finally:
+		if con:
+				con.close()
 		return msg
 	
 if __name__ == '__main__':
