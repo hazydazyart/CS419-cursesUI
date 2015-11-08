@@ -6,6 +6,8 @@ class projectApp(npyscreen.NPSAppManaged):
     def onStart(self):
         self.addForm('MAIN', MainMenu, name="Project UI") 
     	self.addForm('USERINFO', UserInfo)
+		self.addForm('ADDDB', AddDB)
+		self.addForm('LISTDB', ListDB)
     	self.addForm('EDITDB', EditDB)
     	self.addForm('QRYDB', QryDB)
     	self.addForm('IMPORTDB', ImportDB)
@@ -20,6 +22,8 @@ class MainMenu(npyscreen.FormBaseNewWithMenus):
 		
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
+		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
+		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
@@ -29,6 +33,12 @@ class MainMenu(npyscreen.FormBaseNewWithMenus):
 	
 	def showinfo(self):
 		self.parentApp.switchForm('USERINFO')
+	
+	def addDB(self):
+		self.parentApp.switchForm('ADDDB')
+		
+	def listDB(self):
+		self.parentApp.switchForm('LISTDB')
 	
 	def modDB(self):
 		self.parentApp.switchForm('EDITDB')
@@ -136,7 +146,76 @@ class FAQ(npyscreen.Form):
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
+		
+#Create PostgreSQL database
 
+class AddDB(npyscreen.Form):
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Add a PostgreSQL Database")
+		self.dbname = self.add(npyscreen.TitleText, name = "Database name: ")
+		self.owner = self.add(npyscreen.TitleText, name = "Owner name: ")
+		
+	def beforeEditing(self):
+		self.dbname.value = ''
+		self.owner.value = ''
+		
+	def afterEditing(self):
+		name = self.dbname.value
+		owner = self.owner.value
+		msg = createDB(name, owner)
+		npyscreen.notify_confirm(msg)
+		self.parentApp.switchFormPrevious()
+
+#Show Postgres Database names
+class ListDB(npyscreen.Form):
+	def create(self):
+		databases = getDatabaseNames()
+		self.add(npyscreen.TitleFixedText, name="List of Postgres Databases")
+		grid = self.add(npyscreen.GridColTitles)
+		grid.col_titles=("Name")
+		grid.values = databases
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
+		
+#PostgreSQL functions
+def getDatabaseNames()
+	con = None
+	rows = []
+	try:
+		con = psycopg2.connect(dbname="postgres", user="postgres")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		cur = con.cursor()
+		command = "SELECT datname FROM pg_database"
+		cur.execute(command)
+		rows = cur.fetchall()
+	except psycopg2.DatabaseError, e:
+		if con:
+			con.rollback()
+		print "Error listing databases " + e
+	finally:
+		if con:
+			con.close()
+		return rows
+
+def createDB(dbname, owner):
+	con = None
+	msg = 'Successfully created database ' + dbname
+	try:
+		con = psycopg2.connect(dbname="postgres", user="postgres")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		cur = con.cursor()
+		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
+		cur.execute(command)
+		rows = cur.fetchall()
+	except psycopg2.DatabaseError, e:
+		if con:
+			con.rollback()
+		msg = 'Error creating database, ' + e
+	finally:
+		if con:
+			con.close()
+		return msg
+	
 if __name__ == '__main__':
     PA = projectApp()
     PA.run()
