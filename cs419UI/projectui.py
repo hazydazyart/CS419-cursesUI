@@ -178,7 +178,7 @@ class ListDB(npyscreen.Form):
 		self.parentApp.switchFormPrevious()
 		
 #PostgreSQL functions
-def getDatabaseNames()
+def getDatabaseNames():
 	con = None
 	rows = []
 	try:
