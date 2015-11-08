@@ -12,14 +12,14 @@ sudo apt-get -y install postgresql-9.1
 sudo apt-get -y install pandas
 sudo apt-get -y install git
 sudo wget https://bootstrap.pypa.io/ez_setup.py -O - | python
-sudo easy_install -y npyscreen
+sudo easy_install npyscreen
 sudo apt-get build-dep -y python-psycopg2
-sudo easy_install -y psycopg2
-echo "host    all             all             all                     trust" >> "$PG_HBA"
+sudo easy_install psycopg2
+sudo truncate -s 0 $PG_HBA
+echo "local    all             all					trust" >> "$PG_HBA"
 service postgresql restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysql'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysql'
-sudo apt-get update
 sudo apt-get install -y mysql-server
 sudo apt-get install -y libmysqlclient-dev
 sudo apt-get install -y python-mysqldb
