@@ -4,24 +4,43 @@ import curses
 #Main form manager
 class projectApp(npyscreen.NPSAppManaged):
     def onStart(self):
-        self.addForm('MAIN', MainMenu, name="Project UI") 
+    	self.addForm('MAINOPT', MainOpt) 
+    	self.mainOptions = MainOpt()
+    	self.addForm('MAIN', MainLogin, name="Project UI")
     	self.addForm('USERINFO', UserInfo)
-		self.addForm('ADDDB', AddDB)
-		self.addForm('LISTDB', ListDB)
-		self.addForm('SQLQRY', SQLQuery)
-		self.addForm('VIEWTB', BrowseTable)
+    	self.addForm('ADDDB', AddDB)
+    	self.addForm('LISTDB', ListDB)
+    	self.addForm('SQLQRY', SQLQuery)
+    	self.addForm('VIEWTB', BrowseTable)
     	self.addForm('EDITDB', EditDB)
     	self.addForm('QRYDB', QryDB)
     	self.addForm('IMPORTDB', ImportDB)
     	self.addForm('EXPORTDB', ExportDB)
     	self.addForm('FAQ', FAQ)
 
-#Main Screen + Menu
-class MainMenu(npyscreen.FormBaseNewWithMenus):
+#Login Screen
+class MainLogin (npyscreen.Form):
 		
 	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Welcome to the project. Select an option from the menu below." )
+		self.add(npyscreen.TitleFixedText, name = "Sign in or create a new account")
+		self.un = self.add(npyscreen.TitleText, name="Username")
+		self.pw = self.add(npyscreen.TitleText, name="Password")
+		self.ch = self.add(npyscreen.TitleSelectOne, max_height=4, value=[1,], name="Select",
+			values = ["Sign in", "Create New Account"], scroll_exit=True)
 		
+		#Sign in or create a new account
+		
+		#If return true go to main form
+		#If return false reload this page with blank values
+		
+	def afterEditing(self):
+		self.parentApp.switchForm('MAINOPT')
+		
+#Main Screen + Menu
+class MainOpt(npyscreen.FormBaseNewWithMenus):
+
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below." )
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
 		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
@@ -158,7 +177,6 @@ class FAQ(npyscreen.Form):
 		self.parentApp.switchFormPrevious()
 		
 #Create PostgreSQL database
-
 class AddDB(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Add a PostgreSQL Database")
@@ -215,7 +233,7 @@ def getDatabaseNames():
 	rows = []
 	try:
 		con = psycopg2.connect(dbname="postgres", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = con.cursor()
 		command = "SELECT datname FROM pg_database"
 		cur.execute(command)
@@ -234,7 +252,7 @@ def createDB(dbname, owner):
 	msg = 'Successfully created database ' + dbname
 	try:
 		con = psycopg2.connect(dbname="postgres", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = con.cursor()
 		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
 		cur.execute(command)
@@ -253,7 +271,7 @@ def selectAll(table):
 	output = []
 	try:
 		con = psycopg2.connect(dbname="movies", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = con.cursor()
 		cur.execute("SELECT * FROM zombie")
 		output.append(cols)
@@ -274,7 +292,7 @@ def executeQuery(query):
 	msg = 'Successfully executed query!'
 	try:
 		con = psycopg2.connect(dbname="movies", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = con.cursor()
 		cur.execute(query)
 	except psycopg2.DatabaseError, e:
