@@ -9,7 +9,6 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('MAIN', MainLogin, name="Project UI")
     	self.addForm('USERINFO', UserInfo)
     	self.addForm('ADDDB', AddDB)
-    	self.addForm('LISTDB', ListDB)
     	self.addForm('SQLQRY', SQLQuery)
     	self.addForm('VIEWTB', BrowseTable)
     	self.addForm('EDITDB', EditDB)
@@ -44,7 +43,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
 		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
-		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
 		self.menu.addItem(text="Browse Table", onSelect=self.BrowseTable)
 		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
@@ -59,9 +57,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	
 	def addDB(self):
 		self.parentApp.switchForm('ADDDB')
-		
-	def listDB(self):
-		self.parentApp.switchForm('LISTDB')
 	
 	def SQLQuery(self):
 		self.parentApp.switchForm('SQLQRY')
@@ -216,16 +211,31 @@ class SQLQuery(npyscreen.Form):
 		msg = executeQuery(self.query.value)
 		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
-		
-#Get all values from table
+	
 class BrowseTable(npyscreen.Form):
 	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Browse Table")
-		grid = self.add(npyscreen.GridColTitles)
-		data = selectAll('zombie')
-		grid.values = data
+		self.add(npyscreen.TitleFixedText, name="Browse Data in Tables")
+		self.add(FetchTablesButton, name="Refresh list")
+		tables = self.add(npyscreen.TitleSelectOne, name="List of tables:", w_id="TList", max_height=7, scroll_exit=True,)
+		tnames = getTableNames()
+		tables.values = [tn[0] for tn in tnames]
+		button = self.add(BrowseTableButton, name="Browse Data in Table")
+		tdata = self.add(npyscreen.BoxTitle, name="All data in table:", w_id="TData", max_height=7, scroll_exit=True,)
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
+		
+class FetchTablesButton(npyscreen.Form):
+	def whenPressed(self):
+		names = getTableNames()
+		self.parent.get_widget("TList").values = [tn[0] for tn in names]
+		self.parent.get_widget("TList").display()
+		
+class BrowseTableButton(npyscreen.Form):
+	def whenPressed(self):
+		selection = self.parent.get_widget("TData").get_selected_objects()
+		data = selectAll(str(selection[0]))
+		self.parent.get_widget("TData").values = data
+		self.parent.get_widget("TData").display()
 		
 #PostgreSQL functions
 def getDatabaseNames():
@@ -286,6 +296,27 @@ def selectAll(table):
 		if con:
 				con.close()
 		return output
+		
+def getTableNames():
+	con = None
+	names = []
+	try:
+		con = psycopg2.connect(dbname="movies", user="postgres")
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+		cur = con.cursor()
+		command = """SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"""
+		cur.execute(command)
+		rows = cur.fetchall()
+		for row in rows:
+			names.append(row)
+	except psycopg2.DatabaseError, e:
+		if con:
+			con.rollback()
+		print "Error listing tables " + e
+	finally:
+		if con:
+			con.close()
+		return names
 		
 def executeQuery(query):
 	con = None
