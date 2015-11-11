@@ -215,7 +215,7 @@ class SQLQuery(npyscreen.Form):
 class BrowseTable(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Browse Data in Tables")
-		self.add(FetchTablesButton, name="Refresh list")
+#		self.add(FetchTablesButton, name="Refresh list")
 		tables = self.add(npyscreen.TitleSelectOne, name="List of tables:", w_id="TList", max_height=7, scroll_exit=True,)
 		tnames = getTableNames()
 		tables.values = [tn[0] for tn in tnames]
@@ -224,11 +224,11 @@ class BrowseTable(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
-class FetchTablesButton(npyscreen.Form):
-	def whenPressed(self):
-		names = getTableNames()
-		self.parent.get_widget("TList").values = [tn[0] for tn in names]
-		self.parent.get_widget("TList").display()
+#class FetchTablesButton(npyscreen.Form):
+#	def whenPressed(self):
+#		names = getTableNames()
+#		self.parent.get_widget("TList").values = [tn[0] for tn in names]
+#		self.parent.get_widget("TList").display()
 		
 class BrowseTableButton(npyscreen.Form):
 	def whenPressed(self):
@@ -332,7 +332,7 @@ def executeQuery(query):
 		msg = 'Error: ' + e
 	finally:
 		if con:
-				con.close()
+			con.close()
 		return msg
 	
 if __name__ == '__main__':
