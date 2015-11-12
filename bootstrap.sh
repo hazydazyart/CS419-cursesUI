@@ -20,9 +20,7 @@ echo "local    all             all					trust" >> "$PG_HBA"
 service postgresql restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysql'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysql'
-sudo apt-get install -y mysql-server
-sudo apt-get install -y libmysqlclient-dev
-sudo apt-get install -y python-mysqldb
-sudo apt-get install -y python-pip
-sudo pip install -U pip
-sudo pip install --allow-external mysql-connector-python mysql-connector-python
+sudo apt-get -y install mysql-server
+sudo apt-get -y install libmysqlclient-dev
+sudo apt-get -y install python-mysqldb
+sudo apt-get -y install python-mysql.connector
