@@ -94,6 +94,9 @@ class Postgref(npyscreen.Form):
 
 	def on_ok(self):
 		self.parentApp.switchForm('MAIN')
+		
+	def goToMain(self, *args, **keywords):
+		self.parentApp.change_form('MAINOPT')
 
 #Show signed in user's information
 class Mysqlf(npyscreen.Form):
@@ -109,7 +112,7 @@ class Mysqlf(npyscreen.Form):
 		self.add(npyscreen.TitleFixedText, name = msg2)
 	
 	def afterEditing(self):
-		self.parentApp.switchForm('MAINOPT')
+		self.parent.goToMain()
 		
 #Main Screen + Menu
 class MainOpt(npyscreen.FormBaseNewWithMenus):
