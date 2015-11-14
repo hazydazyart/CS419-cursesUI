@@ -1,5 +1,7 @@
 import npyscreen
 import curses
+import psycopg2
+from psycopg2.exentions import ISOLATION_LEVEL_AUTOCOMMIT
 
 #Main form manager
 class projectApp(npyscreen.NPSAppManaged):

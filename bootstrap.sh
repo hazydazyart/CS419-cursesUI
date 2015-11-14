@@ -24,3 +24,4 @@ sudo apt-get -y install mysql-server
 sudo apt-get -y install libmysqlclient-dev
 sudo apt-get -y install python-mysqldb
 sudo apt-get -y install python-mysql.connector
+git clone https://github.com/megaconle/CS419-cursesUI.git

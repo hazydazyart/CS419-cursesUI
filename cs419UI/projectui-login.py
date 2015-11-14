@@ -1,5 +1,19 @@
 import npyscreen
 import curses
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+### PostgreSQL connection variables
+
+psqlCon = None
+psqlAdmin = None
+
+### PostgreSQL user info variables
+psqlName = None
+psqlUser = None
+psqlPass = None
+psqlHost = None
+psqlPort = None
 
 #Main form manager
 class projectApp(npyscreen.NPSAppManaged):
@@ -36,20 +50,46 @@ class MainLogin (npyscreen.Form):
 		
 		elif selectedOpt == 'PostgreSQL':
 			self.parentApp.switchForm('POSTGRESQL')
+			
+class ConnectToPostgres(npyscreen.ButtonPress):
+	def whenPressed(self):
+		global psqlHost
+		global psqlPort
+		global psqlName
+		global psqlPass
+		global psqlUser
 		
-
+		#get values from form
+		psqlHost = self.parent.get_widget('host').value
+		psqlPort = self.parent.get_widget('port').value
+		psqlName = self.parent.get_widget('name').value
+		psqlUser = self.parent.get_widget('user').value
+		psqlPass = self.parent.get_widget('pass').value
+		
+		#try to connect
+		try:
+			global psqlCon
+			
+			psqlCon = psycopg2.connect(database=psqlName, user=psqlUser, password=psqlPass, host=psqlHost, port=psqlPort)
+			
+		except psycopg2.DatabaseError, e:
+			npyscreen.notify_confirm('Could not connect to database. Please try again.')
+			return
+		
+		self.parentApp.switchForm('MAINOPT')
+		
 #Show signed in user's information
 class Postgref(npyscreen.Form):
 	
 	def create(self):
-		msg1 = "Sign into an existing PostgreSQL database or create a new account."
+		msg1 = "Sign into an existing PostgreSQL database"
 		msg2 = "*Required for non-local databases"
 		self.add(npyscreen.TitleFixedText, name = msg1)
-		self.add(npyscreen.TitleText, name = "Username:")
-		self.add(npyscreen.TitleText, name = "Password:")
-		self.add(npyscreen.TitleText, name = "* Host:")
-		self.add(npyscreen.TitleText, name = "* Port:")
-		self.add(npyscreen.TitleFixedText, name = msg2)
+		self.add(npyscreen.TitleText, name = "Database name:", w_id="name", value = "movies")
+		self.add(npyscreen.TitleText, name = "Username:", w_id="user", value = "postgres")
+		self.add(npyscreen.TitleText, name = "Password:", w_id="pass", value = "postgres")
+		self.add(npyscreen.TitleText, name = "Host:", w_id="host", value = "0.0.0.0")
+		self.add(npyscreen.TitleText, name = "Port:", w_id="port", value = "5432")
 	
 	def afterEditing(self):
 		self.parentApp.switchForm('MAINOPT')
@@ -322,20 +362,17 @@ def selectAll(table):
 		return output
 		
 def executeQuery(query):
-	con = None
+	global psqlCon
 	msg = 'Successfully executed query!'
 	try:
-		con = psycopg2.connect(dbname="movies", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
+		psqlCon.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+		cur = psqlCon.cursor()
 		cur.execute(query)
 	except psycopg2.DatabaseError, e:
-		if con:
-			con.rollback()
+		if psqlCon:
+			psqlCon.rollback()
 		msg = 'Error: ' + e
 	finally:
-		if con:
-				con.close()
 		return msg
 	
 if __name__ == '__main__':
