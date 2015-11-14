@@ -76,7 +76,7 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			npyscreen.notify_confirm('Could not connect to database. Please try again.')
 			return
 		
-		self.parentApp.switchForm('MAINOPT')
+		self.parentApp.goToMain()
 		
 #Show signed in user's information
 class Postgref(npyscreen.Form):
