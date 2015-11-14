@@ -92,11 +92,12 @@ class Postgref(npyscreen.Form):
 		self.add(npyscreen.TitleText, name = "Port:", w_id="port", value = "5432")
 		self.add(ConnectToPostgres, name = "Connect to Database")
 
+	# return to login options screen
 	def on_ok(self):
 		self.parentApp.switchForm('MAIN')
 		
 	def goToMain(self, *args, **keywords):
-		self.parentApp.change_form('MAINOPT')
+		self.parentApp.switchForm('MAINOPT')
 
 #Show signed in user's information
 class Mysqlf(npyscreen.Form):
@@ -300,7 +301,7 @@ class BrowseTable(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Browse Table")
 		grid = self.add(npyscreen.GridColTitles)
-		data = selectAll('zombie')
+		data = selectAll('action')
 		grid.values = data
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
@@ -345,13 +346,11 @@ def createDB(dbname, owner):
 		return msg
 		
 def selectAll(table):
-	con = None
+	global psqlCon
 	output = []
 	try:
-		con = psycopg2.connect(dbname="movies", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
-		cur.execute("SELECT * FROM zombie")
+		cur = psqlCon.cursor()
+		cur.execute("SELECT * FROM action")
 		output.append(cols)
 		values = cur.fetchall()
 		for row in values:
@@ -361,8 +360,6 @@ def selectAll(table):
 			con.rollback()
 		print "Error fetching data"
 	finally:
-		if con:
-				con.close()
 		return output
 		
 def executeQuery(query):
