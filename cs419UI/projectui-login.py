@@ -90,9 +90,10 @@ class Postgref(npyscreen.Form):
 		self.add(npyscreen.TitleText, name = "Password:", w_id="pass", value = "postgres")
 		self.add(npyscreen.TitleText, name = "Host:", w_id="host", value = "0.0.0.0")
 		self.add(npyscreen.TitleText, name = "Port:", w_id="port", value = "5432")
-	
-	def afterEditing(self):
-		self.parentApp.switchForm('MAINOPT')
+		self.add(ConnectToPostgres, name = "Connect to Database")
+
+	def on_ok(self):
+		self.parentApp.switchForm('MAIN')
 
 #Show signed in user's information
 class Mysqlf(npyscreen.Form):

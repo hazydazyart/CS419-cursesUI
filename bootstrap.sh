@@ -15,7 +15,7 @@ sudo wget https://bootstrap.pypa.io/ez_setup.py -O - | python
 sudo easy_install npyscreen
 sudo apt-get build-dep -y python-psycopg2
 sudo easy_install psycopg2
-sudo truncate -s 0 $PG_HBA
+sudo truncate -s 0 "$PG_HBA"
 echo "local    all             all					trust" >> "$PG_HBA"
 service postgresql restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysql'
