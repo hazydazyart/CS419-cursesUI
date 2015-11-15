@@ -23,10 +23,10 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('MYSQL', Mysqlf)
     	self.addForm('POSTGRESQL', Postgref)
     	self.addForm('USERINFO', UserInfo)
-    	self.addForm('ADDDB', AddDB)
+    	self.addForm('CreateDB', AddDB)
     	self.addForm('SQLQRY', SQLQuery)
     	self.addForm('VIEWTB', BrowseTable)
-    	self.addForm('EDITDB', EditDB)
+    	self.addForm('DELETEDB', EditDB)
     	self.addForm('QRYDB', QryDB)
     	self.addForm('IMPORTDB', ImportDB)
     	self.addForm('EXPORTDB', ExportDB)
@@ -123,10 +123,13 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below." )
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
-		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
-		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
+#		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
+#		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
-		self.menu.addItem(text="Browse Table", onSelect=self.BrowseTable)
+		self.menu.addItem(text="Browse a Table", onSelect=self.BrowseTable)
+		self.adminMenu = self.menu.addNewSubMenu(name="Admin Menu", shortcut="^Z")
+		self.adminMenu.addItem(text="Create Database", onSelect=self.createDB)
+		self.adminMenu.additem(text="Delete Database", onSelect="self.deleteDB)
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 #		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 #		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
@@ -137,11 +140,11 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def showinfo(self):
 		self.parentApp.switchForm('USERINFO')
 	
-	def addDB(self):
-		self.parentApp.switchForm('ADDDB')
+	def createDB(self):
+		self.parentApp.switchForm('CREATEDB')
 		
-	def listDB(self):
-		self.parentApp.switchForm('LISTDB')
+	def deleteDB(self):
+		self.parentApp.switchForm('DELETEDB')
 	
 	def SQLQuery(self):
 		self.parentApp.switchForm('SQLQRY')
