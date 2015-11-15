@@ -178,6 +178,23 @@ class UserInfo(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 
+		
+def getTableNames():
+	global psqlCon
+	names = []
+	try:
+		cur = psqlCon.cursor()
+		query = """SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"""
+		cur.execute(query)
+		rows = cur.fetchall()
+		names = [row[0] for row in rows]
+	except psycopg2.DatabaseError, e:
+		if psqlCon:
+			psqlCon.rollback()
+		print "Error listing tables " + e
+	return names
+		
+		
 #Show create a new database or select a database to modify
 class EditDB(npyscreen.Form):
 	
@@ -352,22 +369,7 @@ class BrowseTableButton(npyscreen.ButtonPress):
 			npyscreen.notify_confirm('Error fetching data from table')
 		return
 		
-#PostgreSQL functions
-def getTableNames():
-	global psqlCon
-	names = []
-	try:
-		cur = psqlCon.cursor()
-		query = """SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"""
-		cur.execute(query)
-		rows = cur.fetchall()
-		names = [row[0] for row in rows]
-	except psycopg2.DatabaseError, e:
-		if psqlCon:
-			psqlCon.rollback()
-		print "Error listing tables " + e
-	return names
-		
+#PostgreSQL functions		
 def getDatabaseNames():
 	con = None
 	rows = []
