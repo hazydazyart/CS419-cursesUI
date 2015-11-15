@@ -23,10 +23,11 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('MYSQL', Mysqlf)
     	self.addForm('POSTGRESQL', Postgref)
     	self.addForm('USERINFO', UserInfo)
-    	self.addForm('CreateDB', AddDB)
+		self.addForm('ADMINMENU', AdminMenu)
+    	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
     	self.addForm('VIEWTB', BrowseTable)
-    	self.addForm('DELETEDB', EditDB)
+    	self.addForm('DELETEDB', DeleteDB)
     	self.addForm('QRYDB', QryDB)
     	self.addForm('IMPORTDB', ImportDB)
     	self.addForm('EXPORTDB', ExportDB)
@@ -127,9 +128,7 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 #		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
 		self.menu.addItem(text="Browse a Table", onSelect=self.BrowseTable)
-		self.adminMenu = self.menu.addNewSubMenu(name="Admin Menu", shortcut="^Z")
-		self.adminMenu.addItem(text="Create Database", onSelect=self.createDB)
-		self.adminMenu.additem(text="Delete Database", onSelect="self.deleteDB)
+		self.menu.addItem(text="Administration", onSelect=self.AdminMenu)
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 #		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 #		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
@@ -137,14 +136,11 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
+	def AdminMenu(self):
+		self.parentApp.switchForm('ADMINMENU')
+		
 	def showinfo(self):
 		self.parentApp.switchForm('USERINFO')
-	
-	def createDB(self):
-		self.parentApp.switchForm('CREATEDB')
-		
-	def deleteDB(self):
-		self.parentApp.switchForm('DELETEDB')
 	
 	def SQLQuery(self):
 		self.parentApp.switchForm('SQLQRY')
@@ -177,6 +173,39 @@ class UserInfo(npyscreen.Form):
 		self.add(npyscreen.TitleFixedText, name = "Name:", value="John Johnson")
 		self.add(npyscreen.TitleFixedText, name = "Role:", value="User")
 		self.add(npyscreen.TitleFixedText, name = "Number of Databases", value="2")
+	
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
+		
+class AdminForm(npyscreen.Form):
+	def create(self):
+		self.add(AdminCreateDatabaseForm, name="Create a Database")
+		self.add(AdminDeleteDatabaseForm, name="Delete a Database")
+		
+	def goToCreate():
+		self.parentApp.switchForm('CREATEDB')
+		
+	def goToDelete():
+		self.parentApp.switchForm('DELETEDB')
+		
+class AdminCreateDatabaseForm(npyscreen.ButtonPress):
+	def whenPressed(self):
+		self.parent.goToCreate()
+
+class AdminDeleteDatabaseForm(npyscreen.ButtonPress):
+	def whenPressed(self):
+		self.parent.goToDelete()
+		
+class CreateDB(npyscreen.Form):
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Create a new Database")
+	
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
+		
+class DeleteDB(npyscreen.Form):
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Delete a Database")
 	
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
