@@ -123,8 +123,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below." )
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
-		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
-		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
 		self.menu.addItem(text="Browse Table", onSelect=self.BrowseTable)
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
@@ -132,7 +130,7 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 #		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
 #		self.menu.addItem(text="Export a Database", onSelect=self.impDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
-#		self.menu.addItem(text="Exit", onSelect=self.exit)
+		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
 	def showinfo(self):
 		self.parentApp.switchForm('USERINFO')
@@ -289,9 +287,9 @@ class ListDB(npyscreen.Form):
 class SQLQuery(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Enter a Query")
-		self.add(npyscreen.MultiLineEditableBoxed, w_id="query"
-			value="""Enter query here!""", max_height=5, max_width=50, scroll_exit=True, edit=True)
+		self.add(npyscreen.MultiLineEditableBoxed, w_id="query", max_height=5, max_width=50, scroll_exit=True)
 		self.add(ExecuteQueryButton, name="Execute query")
+		self.add(npyscreen.TitleFixedText, name="Query results below:")
 		self.add(npyscreen.BoxTitle, w_id="resultstable", max_height=10, max_width=50, scroll_exit=True)
 	
 	def afterEditing(self):
@@ -314,14 +312,19 @@ class ExecuteQueryButton(npyscreen.ButtonPress):
 				rows = cur.fetchall()
 				self.parent.get_widget('resultstable').values = rows
 				self.parent.get_widget('resultstable').display()
-			else if (command == "DROP"):
+			elif (command == "DROP"):
 				npyscreen.notify_confirm("Table dropped successfully.")
 			else:
 				output = []
 				output.append(cur.query)
+				output.append("SUCCESS")
 				self.parent.get_widget('resultstable').values = output
 				self.parent.get_widget('resultstable').display()
-	
+
+		except psycopg2.DatabaseError, e:
+			if psqlCon:
+				psqlCon.rollback()
+			npyscreen.notify_confirm("Error executing query!")	
 #Get all values from table
 class BrowseTable(npyscreen.Form):
 	def create(self):
