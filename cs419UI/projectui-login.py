@@ -23,7 +23,7 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('MYSQL', Mysqlf)
     	self.addForm('POSTGRESQL', Postgref)
     	self.addForm('USERINFO', UserInfo)
-		self.addForm('ADMINMENU', AdminMenu)
+	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
     	self.addForm('VIEWTB', BrowseTable)
@@ -177,16 +177,19 @@ class UserInfo(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
-class AdminForm(npyscreen.Form):
+class AdminMenu(npyscreen.Form):
 	def create(self):
 		self.add(AdminCreateDatabaseForm, name="Create a Database")
 		self.add(AdminDeleteDatabaseForm, name="Delete a Database")
 		
-	def goToCreate():
+	def goToCreate(self, *args, **keywords):
 		self.parentApp.switchForm('CREATEDB')
 		
-	def goToDelete():
+	def goToDelete(self, *args, **keywords):
 		self.parentApp.switchForm('DELETEDB')
+
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
 		
 class AdminCreateDatabaseForm(npyscreen.ButtonPress):
 	def whenPressed(self):
