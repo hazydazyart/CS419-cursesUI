@@ -71,12 +71,13 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			global psqlCon
 			
 			psqlCon = psycopg2.connect(database=psqlName, user=psqlUser, password=psqlPass, host=psqlHost, port=psqlPort)
+			psqlCon.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 			
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm('Could not connect to database. Please try again.')
 			return
 		
-		self.parentApp.goToMain()
+		self.parent.goToMain()
 		
 #Show signed in user's information
 class Postgref(npyscreen.Form):
@@ -302,6 +303,7 @@ class BrowseTable(npyscreen.Form):
 		self.add(npyscreen.TitleFixedText, name="Browse Table")
 		grid = self.add(npyscreen.GridColTitles)
 		data = selectAll('action')
+		print "pls"
 		grid.values = data
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
@@ -351,13 +353,12 @@ def selectAll(table):
 	try:
 		cur = psqlCon.cursor()
 		cur.execute("SELECT * FROM action")
-		output.append(cols)
 		values = cur.fetchall()
 		for row in values:
 			output.append(row)
 	except psycopg2.DatabaseError, e:
-		if con:
-			con.rollback()
+		if psqlCon:
+			psqlCon.rollback()
 		print "Error fetching data"
 	finally:
 		return output
@@ -366,13 +367,12 @@ def executeQuery(query):
 	global psqlCon
 	msg = 'Successfully executed query!'
 	try:
-		psqlCon.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = psqlCon.cursor()
 		cur.execute(query)
 	except psycopg2.DatabaseError, e:
 		if psqlCon:
 			psqlCon.rollback()
-		msg = 'Error: ' + e
+		msg = 'Error: %s ' % e
 	finally:
 		return msg
 	
