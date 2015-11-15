@@ -289,14 +289,39 @@ class ListDB(npyscreen.Form):
 class SQLQuery(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Enter a Query")
-		self.query = self.add(npyscreen.MultiLineEdit,
-			value="""Enter query here!""", max_height=5, rely=9)
+		self.add(npyscreen.MultiLineEditableBoxed, w_id="query"
+			value="""Enter query here!""", max_height=5, max_width=50, scroll_exit=True, edit=True)
+		self.add(ExecuteQueryButton, name="Execute query")
+		self.add(npyscreen.BoxTitle, w_id="resultstable", max_height=10, max_width=50, scroll_exit=True)
 	
 	def afterEditing(self):
-		msg = executeQuery(self.query.value)
-		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
 		
+class ExecuteQueryButton(npyscreen.ButtonPress):
+	def whenPressed(self):
+		queries = self.parent.get_widget('query').values
+		
+		try:
+			global psqlCon
+			cur = psqlCon.cursor()
+			for query in queries:
+				cur.execute(query)
+			psqlCon.commit()
+			
+			#If command was select, display the data
+			command = cur.query.partition(' ')[0]
+			if(command == "SELECT"):
+				rows = cur.fetchall()
+				self.parent.get_widget('resultstable').values = rows
+				self.parent.get_widget('resultstable').display()
+			else if (command == "DROP"):
+				npyscreen.notify_confirm("Table dropped successfully.")
+			else:
+				output = []
+				output.append(cur.query)
+				self.parent.get_widget('resultstable').values = output
+				self.parent.get_widget('resultstable').display()
+	
 #Get all values from table
 class BrowseTable(npyscreen.Form):
 	def create(self):
@@ -351,21 +376,6 @@ class BrowseTableButton(npyscreen.ButtonPress):
 		return
 		
 #PostgreSQL functions
-def getTableNames():
-	global psqlCon
-	try:
-		cur = psqlCon.cursor()
-		query = """SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"""
-		cur.execute(query)
-		rows = cur.fetchall()
-		for row in rows:
-			names.append(row)
-	except psycopg2.DatabaseError, e:
-		if psqlCon:
-			psqlCon.rollback()
-		print "Error listing tables " + e
-	return names
-		
 def getDatabaseNames():
 	con = None
 	rows = []
