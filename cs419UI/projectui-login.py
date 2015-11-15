@@ -299,10 +299,11 @@ class SQLQuery(npyscreen.Form):
 		
 #Get all values from table
 class BrowseTable(npyscreen.Form):
+	tnames = getTableNames()
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Browse a Table")
 		self.add(FetchTablesButton, name="Refresh table names")
-		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True)
+		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True, values=tnames)
 		self.add(BrowseTableButton, name="Browse Table")
 		self.add(npyscreen.BoxTitle, name="All data in table", w_id="tdata", max_height=7, scroll_exit=True)
 		
@@ -314,8 +315,9 @@ class FetchTablesButton(npyscreen.ButtonPress):
 		try:
 			global psqlCon
 			cur = psqlCon.cursor()
-			cur.execute("""SELECT table_name from information_schema.tables WHERE table_schema = 'public'""")
-			rows = cur.fetchall()
+#			cur.execute("""SELECT table_name from information_schema.tables WHERE table_schema = 'public'""")
+#			rows = cur.fetchall()
+			rows = getTableNames()
 			output = []
 			for row in rows:
 				output.append(row)
@@ -333,7 +335,7 @@ class BrowseTableButton(npyscreen.ButtonPress):
 		try:
 			global psqlCon
 			cur = psqlCon.cursor()
-			query = "SELECT * FROM " + str(selection[0])
+			query = "SELECT * FROM " + str(selected[0])
 			cur.execute(query)
 			output = []
 			cols = [cn[0] for cn in cur.description]
@@ -351,6 +353,21 @@ class BrowseTableButton(npyscreen.ButtonPress):
 		return
 		
 #PostgreSQL functions
+def getTableNames():
+	global psqlCon
+	names = []
+	try:
+		cur = psqlCon.cursor()
+		query = """SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"""
+		cur.execute(query)
+		rows = cur.fetchall()
+		names = [row[0] for row in rows]
+	except psycopg2.DatabaseError, e:
+		if psqlCon:
+			psqlCon.rollback()
+		print "Error listing tables " + e
+	return names
+		
 def getDatabaseNames():
 	con = None
 	rows = []
