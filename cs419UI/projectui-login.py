@@ -301,7 +301,7 @@ class SQLQuery(npyscreen.Form):
 class BrowseTable(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Browse a Table")
-		self.add(FetchTablesButton, name="Get tables")
+		self.add(FetchTablesButton, name="Refresh table names")
 		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True)
 		self.add(BrowseTableButton, name="Browse Table")
 		self.add(npyscreen.BoxTitle, name="All data in table", w_id="tdata", max_height=7, scroll_exit=True)
@@ -309,7 +309,7 @@ class BrowseTable(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
-def FetchTablesButton(npyscreen.ButtonPress):
+class FetchTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		try:
 			global psqlCon
@@ -327,12 +327,12 @@ def FetchTablesButton(npyscreen.ButtonPress):
 			npyscreen.notify_confirm('Could not fetch table names.')
 		return
 		
-def BrowseTableButton(npyscreen.ButtonPress):
+class BrowseTableButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		selected = self.parent.get_widget('tmenu').get_selected_objects()
 		try:
 			global psqlCon
-			cur = con.cursor()
+			cur = psqlCon.cursor()
 			query = "SELECT * FROM " + str(selection[0])
 			cur.execute(query)
 			output = []
