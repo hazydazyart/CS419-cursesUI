@@ -1,7 +1,9 @@
 import npyscreen
 import curses
 import psycopg2
+import mysql.connector
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from mysql.connector import errors
 
 ### PostgreSQL connection variables
 
@@ -15,14 +17,36 @@ psqlPass = None
 psqlHost = None
 psqlPort = None
 
+### MySQL Connection variables
+
+mysqlCon = None
+
+### MySQL user variables
+
+mysqlDbase = None
+mysqlUser = None
+mysqlPass = None
+mysqlHost = None
+
 #Main form manager
 class projectApp(npyscreen.NPSAppManaged):
     def onStart(self):
     	self.addForm('MAINOPT', MainOpt) 
+    	self.addForm('MYMAINOPT', MyMainOpt) #
     	self.addForm('MAIN', MainLogin, name="Project UI")
-    	self.addForm('MYSQL', Mysqlf)
+    	self.addForm('MYSQL', Mysqlf) #
     	self.addForm('POSTGRESQL', Postgref)
     	self.addForm('USERINFO', UserInfo)
+    	self.addForm('MYUSERINFO', MyUserInfo) #
+	self.addForm('ROOTMENU', RootMenu) #
+    	self.addForm('MYCREATEDB', MyCreateDB) #
+    	self.addForm('MYSQLQRY', MySQLQuery) #
+    	self.addForm('MYVIEWTB', MyBrowseTable) #
+    	self.addForm('MYDELETEDB', MyDeleteDB) #
+    	self.addForm('MYQRYDB', MyQryDB) #
+    	self.addForm('MYIMPORTDB', MyImportDB) #
+    	self.addForm('MYEXPORTDB', MyExportDB) #
+    	self.addForm('MYFAQ', MyFAQ) #
 	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
@@ -79,7 +103,36 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			return
 		
 		self.parent.goToMain()
+
+class ConnectToMysql(npyscreen.ButtonPress):
+	def whenPressed(self):
+		global mysqlHost
+		global mysqlDbase
+		global mysqlPass
+		global mysqlUser
 		
+		#get values from form
+		mysqlHost = self.parent.get_widget('host').value
+		mysqlUser = self.parent.get_widget('user').value
+		mysqlDbase = self.parent.get_widget('dbase').value
+		mysqlPass = self.parent.get_widget('pass').value
+		
+		#try to connect
+		try:
+			global mysqlCon
+			
+			#mysqlCon = mysql.connector.connect(host='localhost', database='mysql', user='root', password='mysql')
+			mysqlCon = mysql.connector.connect(host=mysqlHost, database=mysqlDbase, user=mysqlUser, password=mysqlPass)
+
+			if mysqlCon.is_connected():
+				print('Connected to MySQL database')
+			
+		except errors as e:
+			npyscreen.notify_confirm('Connection error. Please try again')
+			return
+		
+		self.parent.goToMainMy()
+
 #Show signed in user's information
 class Postgref(npyscreen.Form):
 	
@@ -105,17 +158,21 @@ class Postgref(npyscreen.Form):
 class Mysqlf(npyscreen.Form):
 	
 	def create(self):
-		msg1 = "Sign into an existing PostgreSQL database or create a new account."
+		msg1 = "Sign into an existing MySQL database or create a new account."
 		msg2 = "*Required for non-local databases"
 		self.add(npyscreen.TitleFixedText, name = msg1)
-		self.add(npyscreen.TitleText, name = "Username:")
-		self.add(npyscreen.TitleText, name = "Password:")
-		self.add(npyscreen.TitleText, name = "* Host:")
-		self.add(npyscreen.TitleText, name = "* Port:")
+		self.add(npyscreen.TitleText, name = "Username:", w_id="user", value= "root")
+		self.add(npyscreen.TitleText, name = "Password:", w_id="pass", value= "mysql")
+		self.add(npyscreen.TitleText, name = "* Host:", w_id="host", value= "localhost")
+		self.add(npyscreen.TitleText, name = "* Database:", w_id="dbase", value= "mysql")
 		self.add(npyscreen.TitleFixedText, name = msg2)
+		self.add(ConnectToMysql, name = "Connect to Database")
 	
-	def afterEditing(self):
-		self.parent.goToMain()
+	def on_ok(self):
+		self.parentApp.switchForm('MYMAIN')
+
+	def goToMainMy(self, *args, **keywords):
+		self.parentApp.switchForm('MYMAINOPT')
 		
 #Main Screen + Menu
 class MainOpt(npyscreen.FormBaseNewWithMenus):
@@ -166,6 +223,56 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def exit(self):
 		self.parentApp.switchForm(None)
 
+#Main Screen + Menu MYSQL
+class MyMainOpt(npyscreen.FormBaseNewWithMenus):
+
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below for MySQL." )
+		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
+		self.menu.addItem(text="User Information", onSelect=self.Myshowinfo)
+#		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.MyaddDB)
+#		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.MylistDB)
+		self.menu.addItem(text="Enter a Query", onSelect=self.MySQLQuery)
+		self.menu.addItem(text="Browse a Table", onSelect=self.MyBrowseTable)
+		self.menu.addItem(text="Administration", onSelect=self.RootMenu)
+#		self.menu.addItem(text="Create & Modify Databases", onSelect=self.MymodDB)
+#		self.menu.addItem(text="Query Databases", onSelect=self.MyqueryDB)
+#		self.menu.addItem(text="Import a Database", onSelect=self.MyexDB)
+#		self.menu.addItem(text="Export a Database", onSelect=self.MyimpDB)
+#		self.menu.addItem(text="FAQ", onSelect=self.MyshowFAQ)
+		self.menu.addItem(text="Exit", onSelect=self.Myexit)
+	
+	def RootMenu(self):
+		self.parentApp.switchForm('ROOTMENU')
+		
+	def Myshowinfo(self):
+		self.parentApp.switchForm('MYUSERINFO')
+	
+	def MySQLQuery(self):
+		self.parentApp.switchForm('MYSQLQRY')
+		
+	def MyBrowseTable(self):
+		self.parentApp.switchForm('MYVIEWTB')
+		
+	def MymodDB(self):
+		self.parentApp.switchForm('MYEDITDB')
+	
+	def MyqueryDB(self):
+		self.parentApp.switchForm('MYQRYDB')
+	
+	def MyexDB(self):
+		self.parentApp.switchForm('MYEXPORTDB')
+	
+	def MyimpDB(self):
+		self.parentApp.switchForm('MYIMPORTDB')
+	
+	def MyshowFAQ(self):
+		self.parentApp.switchForm('MYFAQ')
+	
+	def Myexit(self):
+		self.parentApp.switchForm(None)
+
+### BEGIN POSTGRES
 #Show signed in user's information
 class UserInfo(npyscreen.Form):
 	
@@ -482,7 +589,9 @@ def executeQuery(query):
 		msg = 'Error: %s ' % e
 	finally:
 		return msg
-	
+
+### END POSTGRES
+
 if __name__ == '__main__':
     PA = projectApp()
     PA.run()
