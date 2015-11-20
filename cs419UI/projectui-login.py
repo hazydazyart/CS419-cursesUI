@@ -101,7 +101,15 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm('Connection error. Please try again')
 			return
+
+		try:
+			global psqlAdmin
+			psqlAdmin = psycopg2.connect(database='postgres', user='postgres')
+			psqlAdmin.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		
+		except psycopg2.DatabaseError, e:
+			npyscreen.notify_confirm('Unable to connect to administration database. Administration functions may not be available.')
+			
 		self.parent.goToMain()
 
 class ConnectToMysql(npyscreen.ButtonPress):
@@ -308,9 +316,19 @@ class AdminDeleteDatabaseForm(npyscreen.ButtonPress):
 		
 class CreateDB(npyscreen.Form):
 	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Create a new Database")
-	
+		self.add(npyscreen.TitleFixedText, name="Add a PostgreSQL Database")
+		self.dbname = self.add(npyscreen.TitleText, name = "Database name: ")
+		self.owner = self.add(npyscreen.TitleText, name = "Owner name: ")
+		
+	def beforeEditing(self):
+		self.dbname.value = ''
+		self.owner.value = ''
+		
 	def afterEditing(self):
+		name = self.dbname.value
+		owner = self.owner.value
+		msg = createPsqlDB(name, owner)
+		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
 		
 class DeleteDB(npyscreen.Form):
@@ -398,24 +416,6 @@ class FAQ(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
-#Create PostgreSQL database
-class AddDB(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Add a PostgreSQL Database")
-		self.dbname = self.add(npyscreen.TitleText, name = "Database name: ")
-		self.owner = self.add(npyscreen.TitleText, name = "Owner name: ")
-		
-	def beforeEditing(self):
-		self.dbname.value = ''
-		self.owner.value = ''
-		
-	def afterEditing(self):
-		name = self.dbname.value
-		owner = self.owner.value
-		msg = createDB(name, owner)
-		npyscreen.notify_confirm(msg)
-		self.parentApp.switchFormPrevious()
-
 #Show Postgres Database names
 class ListDB(npyscreen.Form):
 	def create(self):
@@ -542,13 +542,11 @@ def getDatabaseNames():
 			con.close()
 		return rows
 
-def createDB(dbname, owner):
-	con = None
+def createPsqlDB(dbname, owner):
+	global psqlAdmin
 	msg = 'Successfully created database ' + dbname
 	try:
-		con = psycopg2.connect(dbname="postgres", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
+		cur = psqlAdmin.cursor()
 		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
 		cur.execute(command)
 		rows = cur.fetchall()
@@ -556,10 +554,7 @@ def createDB(dbname, owner):
 		if con:
 			con.rollback()
 		msg = 'Error creating database, ' + e
-	finally:
-		if con:
-			con.close()
-		return msg
+	return msg
 		
 def selectAll(table):
 	global psqlCon
