@@ -99,7 +99,8 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			psqlCon.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 			
 		except psycopg2.DatabaseError, e:
-			npyscreen.notify_confirm('Connection error. Please try again')
+			msg = 'Error %s' % e
+			npyscreen.notify_confirm(msg)
 			return
 
 		try:
