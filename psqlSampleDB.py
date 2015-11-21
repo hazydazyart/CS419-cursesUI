@@ -6,17 +6,13 @@ con = None
 
 try:
      
-    con = psycopg2.connect("dbname='postgres' user='postgres'")   
+    con = psycopg2.connect("dbname='movies' user='postgres'")   
     
     cur = con.cursor()
-	
-	cur.execute("CREATE DATABASE movies WITH OWNER postgres")
-	
-	con.close()
-	
-	con = psycopg2.connect("dbname='movies' user='postgres'")
-  
-    cur.execute("CREATE TABLE action(Id INTEGER PRIMARY KEY, Name VARCHAR(20), Year INT)")
+
+    cur.execute("DROP TABLE IF EXISTS action")
+    cur.execute("DROP TABLE IF EXISTS zombie")
+    cur.execute("CREATE TABLE action(Id INTEGER PRIMARY KEY, Name VARCHAR(40), Year INT)")
     cur.execute("INSERT INTO action VALUES(1,'Die Hard',1988)")
     cur.execute("INSERT INTO action VALUES(2,'Terminator 2',1991)")
     cur.execute("INSERT INTO action VALUES(3,'Raiders of the Lost Ark',1981)")
@@ -26,17 +22,17 @@ try:
     cur.execute("INSERT INTO action VALUES(7,'Aliens',1986)")
     cur.execute("INSERT INTO action VALUES(8,'Star Wars',1977)")
 	
-	cur.execute("CREATE TABLE zombie(Id INTEGER PRIMARY KEY, Name VARCHAR(20), Year INT)")
-    cur.execute("INSERT INTO action VALUES(1,'Dawn of the Dead',1978)")
-    cur.execute("INSERT INTO action VALUES(2,'Night of the Living Dead',1968)")
-    cur.execute("INSERT INTO action VALUES(3,'28 Days Later',2002)")
-    cur.execute("INSERT INTO action VALUES(4,'Shaun of the Dead',2004)")
-    cur.execute("INSERT INTO action VALUES(5,'Day of the Dead',1985)")
-    cur.execute("INSERT INTO action VALUES(6,'Dead Snow', 2009)")
-    cur.execute("INSERT INTO action VALUES(7,'Resident Evil',2002)")
-    cur.execute("INSERT INTO action VALUES(8,'White Zombie',1932)")
+    cur.execute("CREATE TABLE zombie(Id INTEGER PRIMARY KEY, Name VARCHAR(40), Year INT)")
+    cur.execute("INSERT INTO zombie VALUES(1,'Dawn of the Dead',1978)")
+    cur.execute("INSERT INTO zombie VALUES(2,'Night of the Living Dead',1968)")
+    cur.execute("INSERT INTO zombie VALUES(3,'28 Days Later',2002)")
+    cur.execute("INSERT INTO zombie VALUES(4,'Shaun of the Dead',2004)")
+    cur.execute("INSERT INTO zombie VALUES(5,'Day of the Dead',1985)")
+    cur.execute("INSERT INTO zombie VALUES(6,'Dead Snow', 2009)")
+    cur.execute("INSERT INTO zombie VALUES(7,'Resident Evil',2002)")
+    cur.execute("INSERT INTO zombie VALUES(8,'White Zombie',1932)")
 	
-	con.commit()
+    con.commit()
     
 
 except psycopg2.DatabaseError, e:
