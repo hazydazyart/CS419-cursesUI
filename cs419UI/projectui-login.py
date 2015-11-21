@@ -332,7 +332,7 @@ class CreateDB(npyscreen.Form):
 		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
 		
-class BrowseTable(npyscreen.Form):
+class DeleteDB(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Delete a Database")
 		self.add(FetchDbsButton, name="Refresh Database Names")
