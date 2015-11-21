@@ -332,12 +332,50 @@ class CreateDB(npyscreen.Form):
 		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
 		
-class DeleteDB(npyscreen.Form):
+class BrowseTable(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Delete a Database")
-	
+		self.add(FetchDbsButton, name="Refresh Database Names")
+		self.add(npyscreen.TitleSelectOne, name="Databases:", w_id="dmenu", max_height=5, scroll_exit=True)
+		self.add(DeleteDbButton, name="Delete Selected Database")
+		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
+		
+class FetchDbsButton(npyscreen.ButtonPress):
+	def whenPressed(self):
+		try:
+			global psqlCon
+			cur = psqlCon.cursor()
+			cur.execute("SELECT datname FROM pg_database")
+			rows = cur.fetchall()
+			output = []
+			for row in rows:
+				output.append(row)
+			self.parent.get_widget('dmenu').values = [val[0] for val in output]
+			self.parent.get_widget('dmenu').display()
+		except psycopg2.DatabaseError, e:
+			if psqlCon:
+				psqlCon.rollback()
+			npyscreen.notify_confirm('Could not fetch database names: %s' % e)
+		return
+		
+class DeleteDbButton(npyscreen.ButtonPress):
+	def whenPressed(self):
+		selected = self.parent.get_widget('dmenu').get_selected_objects()
+		try:
+			global psqlAdmin
+			cur = psqlAdmin.cursor()
+			query = "DROP DATABASE " + str(selected[0])
+			cur.execute(query)
+			
+		except psycopg2.DatabaseError, e:
+			if psqlAdmin:
+				psqlAdmin.rollback()
+			npyscreen.notify_confirm('Error dropping database: %s' % e)
+			return
+		npyscreen.notify_confirm('Successfully dropped database')
+		return
 
 #Show create a new database or select a database to modify
 class EditDB(npyscreen.Form):
@@ -547,7 +585,7 @@ class BrowseTableButton(npyscreen.ButtonPress):
 				psqlCon.rollback()
 			npyscreen.notify_confirm('Error fetching data from table')
 		return
-		
+	
 #PostgreSQL functions
 def getDatabaseNames():
 	con = None
