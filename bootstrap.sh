@@ -16,7 +16,8 @@ sudo easy_install npyscreen
 sudo apt-get build-dep -y python-psycopg2
 sudo easy_install psycopg2
 sudo truncate -s 0 "$PG_HBA"
-echo "local    all             all					trust" >> "$PG_HBA"
+echo "local    all             all                                  trust" >> "$PG_HBA"
+echo "host    all             all             all                     trust" >> "$PG_HBA"
 service postgresql restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysql'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysql'
