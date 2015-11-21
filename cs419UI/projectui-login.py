@@ -387,9 +387,6 @@ class ImportDB(npyscreen.Form):
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
-
-#Export a database
-class ExportDB(npyscreen.Form):
 	
 #Export a database
 class ExportDB(npyscreen.Form):
