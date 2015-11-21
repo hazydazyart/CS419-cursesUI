@@ -197,8 +197,8 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.menu.addItem(text="Administration", onSelect=self.AdminMenu)
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 #		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
-#		self.menu.addItem(text="Import a Database", onSelect=self.exDB)
-#		self.menu.addItem(text="Export a Database", onSelect=self.impDB)
+#		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
+		self.menu.addItem(text="Export a Database", onSelect=self.exDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
@@ -391,22 +391,50 @@ class ImportDB(npyscreen.Form):
 #Export a database
 class ExportDB(npyscreen.Form):
 	
+#Export a database
+class ExportDB(npyscreen.Form):
+	
 	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select a database to export")
-		grid = self.add(npyscreen.GridColTitles)
+		self.add(npyscreen.TitleFixedText, name="Export a Table")
+		self.add(FetchTablesButton, name="Refresh table names")
+		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True)
+		self.add(BrowseTableButton, name="Browse Table")
+		self.add(npyscreen.BoxTitle, name="All data in table", w_id="tdata", max_height=7, scroll_exit=True)
 		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
+		self.add(npyscreen.TitleFixedText, name="Enter the table name to export")
+		self.add(npyscreen.TitleText, name = "Table:", w_id="tblname", value = "")
+		self.add(ExportTablesButton, name="Export")
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
+
+class ExportTablesButton(npyscreen.ButtonPress):
+	def whenPressed(self):
+		expTable = self.parent.get_widget('tblname').values
+		
+		f = None
+		
+		try:
+			global psqlCon
+			cur = psqlCon.cursor()
+			
+			f = open(expTable, 'r')
+			cur.copy_from(f, expTable, sep=",")
+			psqlCon.commit()
+
+		except psycopg2.DatabaseError, e:
+			if psqlCon:
+				psqlCon.rollback()
+			npyscreen.notify_confirm("Database Error!")
+		
+		except IOError, e:
+			if psqlCon:
+				psqlCon.rollback()
+			npyscreen.notify_confirmation("Export Error!")
+		
+		finally:
+			if f:
+				f.close()
 
 #Show FAQs
 class FAQ(npyscreen.Form):
