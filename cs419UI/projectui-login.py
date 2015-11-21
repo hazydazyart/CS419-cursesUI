@@ -575,41 +575,11 @@ def createPsqlDB(dbname, owner):
 		cur = psqlAdmin.cursor()
 		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
 		cur.execute(command)
-		rows = cur.fetchall()
 	except psycopg2.DatabaseError, e:
 		if psqlAdmin:
 			psqlAdmin.rollback()
-		msg = 'Error creating database, ' + e
+		msg = 'Error creating database: %s' % e
 	return msg
-		
-def selectAll(table):
-	global psqlCon
-	output = []
-	try:
-		cur = psqlCon.cursor()
-		cur.execute("SELECT * FROM action")
-		values = cur.fetchall()
-		for row in values:
-			output.append(row)
-	except psycopg2.DatabaseError, e:
-		if psqlCon:
-			psqlCon.rollback()
-		print "Error fetching data"
-	finally:
-		return output
-		
-def executeQuery(query):
-	global psqlCon
-	msg = 'Successfully executed query!'
-	try:
-		cur = psqlCon.cursor()
-		cur.execute(query)
-	except psycopg2.DatabaseError, e:
-		if psqlCon:
-			psqlCon.rollback()
-		msg = 'Error: %s ' % e
-	finally:
-		return msg
 
 ### END POSTGRES
 
