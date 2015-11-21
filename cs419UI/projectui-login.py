@@ -551,8 +551,8 @@ def createPsqlDB(dbname, owner):
 		cur.execute(command)
 		rows = cur.fetchall()
 	except psycopg2.DatabaseError, e:
-		if con:
-			con.rollback()
+		if psqlAdmin:
+			psqlAdmin.rollback()
 		msg = 'Error creating database, ' + e
 	return msg
 		
