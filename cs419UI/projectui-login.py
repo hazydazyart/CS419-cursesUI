@@ -407,7 +407,7 @@ class ExportDB(npyscreen.Form):
 
 class ExportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
-		expTable = self.parent.get_widget('tblname').values
+		expTable = self.parent.get_widget('tblname').value
 		
 		f = None
 		
