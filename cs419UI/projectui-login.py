@@ -468,7 +468,7 @@ class ImportDB(npyscreen.Form):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
 		self.add(npyscreen.TitleFixedText, name="Enter the table name to import")
 		self.add(npyscreen.TitleText, name = "Table:", w_id="imptblname", value = "")
-		self.add(ExportTablesButton, name="Import")
+		self.add(ImportTablesButton, name="Import")
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
