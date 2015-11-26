@@ -199,6 +199,7 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 #		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 #		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
 		self.menu.addItem(text="Export a Database", onSelect=self.exDB)
+		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
@@ -416,17 +417,8 @@ class QryDB(npyscreen.Form):
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
-
-#Import a database
-class ImportDB(npyscreen.Form):
 	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Import a database")
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-	
-#Export a database
+#Export a table
 class ExportDB(npyscreen.Form):
 	
 	def create(self):
@@ -455,25 +447,63 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			
 			f = open(expTable, 'w')
 			cur.copy_to(f, expTable, sep="|")
-			#psqlCon.commit()
 
 		except psycopg2.DatabaseError, e:
-			#if psqlCon:
-				#psqlCon.rollback()
 			npyscreen.notify_confirm("Database Error!")
 		
 		except IOError, e:
-			#if psqlCon:
-				#psqlCon.rollback()
 			npyscreen.notify_confirm("Export Error!")
 			print 'Error %s' % e
 			sys.exit(1)
 		
 		finally:
+			npyscreen.notify_confirm("Successfully Exported %s" % expTable)
 			if f:
 				f.close()
 
+#Import a table
+class ImportDB(npyscreen.Form):
+	
+	def create(self):
+		self.add(npyscreen.TitleFixedText, name="Import a Table")
+		self.add(npyscreen.TitleFixedText, name="Enter the table name to import")
+		self.add(npyscreen.TitleText, name = "Table:", w_id="imptblname", value = "")
+		self.add(ExportTablesButton, name="Import")
+		
+	def afterEditing(self):
+		self.parentApp.switchFormPrevious()
 
+class ImportTablesButton(npyscreen.ButtonPress):
+	def whenPressed(self):
+		impTable = self.parent.get_widget('imptblname').value
+		
+		fopen = None
+		
+		try:
+			global psqlCon
+			cur = psqlCon.cursor()
+			
+			f = open(impTable, 'r')
+			cur.copy_from(f, impTable, sep="|")
+			con.commit()
+
+		except psycopg2.DatabaseError, e:
+		
+			if con:
+				con.rollback()
+			npyscreen.notify_confirm("Database Error!")
+		
+		except IOError, e:
+		
+			if con:
+				con.rollback()
+				
+			npyscreen.notify_confirm("Import Error!")
+		
+		finally:
+			npyscreen.notify_confirm("Successfully Imported %s" % impTable)
+			if f:
+				f.close()
 #Show FAQs
 class FAQ(npyscreen.Form):
 	
