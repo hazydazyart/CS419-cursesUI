@@ -436,6 +436,7 @@ class ExportDB(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 
+#Export process referenced from: http://zetcode.com/db/postgresqlpythontutorial/
 class ExportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		expTable = self.parent.get_widget('tblname').value
@@ -467,17 +468,14 @@ class ImportDB(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
-		self.add(npyscreen.TitleFixedText, name="Create a table if it does not exist")
-		
-		
-		
-		self.add(npyscreen.TitleFixedText, name="Enter the table name to import")
+		self.add(npyscreen.TitleFixedText, name="Enter the file to import")
 		self.add(npyscreen.TitleText, name = "Table:", w_id="imptblname", value = "")
 		self.add(ImportTablesButton, name="Import")
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 
+#Import process referenced from: http://zetcode.com/db/postgresqlpythontutorial/
 class ImportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		impTable = self.parent.get_widget('imptblname').value
