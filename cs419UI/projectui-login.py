@@ -454,7 +454,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			cur = psqlCon.cursor()
 			
 			f = open(expTable, 'r')
-			cur.copy_from(f, expTable, sep=",")
+			cur.copy_from(f, expTable, sep="|")
 			psqlCon.commit()
 
 		except psycopg2.DatabaseError, e:
@@ -470,6 +470,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 		finally:
 			if f:
 				f.close()
+
 
 #Show FAQs
 class FAQ(npyscreen.Form):
