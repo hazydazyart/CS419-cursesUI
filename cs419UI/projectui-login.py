@@ -465,7 +465,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 		except IOError, e:
 			#if psqlCon:
 				#psqlCon.rollback()
-			#npyscreen.notify_confirm("Export Error!")
+			npyscreen.notify_confirm(expTable)
 			print 'Error %s' % e
 			sys.exit(1)
 		
