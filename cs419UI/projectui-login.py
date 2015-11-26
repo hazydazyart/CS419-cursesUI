@@ -454,18 +454,20 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			cur = psqlCon.cursor()
 			
 			f = open(expTable, 'r')
-			cur.copy_from(f, expTable, sep="|")
-			psqlCon.commit()
+			cur.copy_to(f, expTable, sep="|")
+			#psqlCon.commit()
 
 		except psycopg2.DatabaseError, e:
-			if psqlCon:
-				psqlCon.rollback()
+			#if psqlCon:
+				#psqlCon.rollback()
 			npyscreen.notify_confirm("Database Error!")
 		
 		except IOError, e:
-			if psqlCon:
-				psqlCon.rollback()
-			npyscreen.notify_confirm("Export Error!")
+			#if psqlCon:
+				#psqlCon.rollback()
+			#npyscreen.notify_confirm("Export Error!")
+			print 'Error %s' % e
+			sys.exit(1)
 		
 		finally:
 			if f:
