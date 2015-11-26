@@ -485,18 +485,18 @@ class ImportTablesButton(npyscreen.ButtonPress):
 			
 			f = open(impTable, 'r')
 			cur.copy_from(f, impTable, sep="|")
-			con.commit()
+			psqlCon.commit()
 
 		except psycopg2.DatabaseError, e:
 		
-			if con:
-				con.rollback()
+			if psqlCon:
+				psqlCon.rollback()
 			npyscreen.notify_confirm("Database Error!")
 		
 		except IOError, e:
 		
-			if con:
-				con.rollback()
+			if psqlCon:
+				psqlCon.rollback()
 				
 			npyscreen.notify_confirm("Import Error!")
 		
