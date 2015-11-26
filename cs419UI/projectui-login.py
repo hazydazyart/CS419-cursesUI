@@ -2,6 +2,7 @@ import npyscreen
 import curses
 import psycopg2
 import mysql.connector
+import csv
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from mysql.connector import errors
 
@@ -198,8 +199,8 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
 #		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 #		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
-		self.menu.addItem(text="Export a Database", onSelect=self.exDB)
-		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
+		self.menu.addItem(text="Export Table Data", onSelect=self.exDB)
+		self.menu.addItem(text="Import Table Data", onSelect=self.impDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
@@ -446,7 +447,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			cur = psqlCon.cursor()
 			
 			f = open(expTable, 'w')
-			cur.copy_to(f, expTable, sep="|")
+			cur.copy_to(f, expTable, sep=",")
 
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm("Database Error!")
@@ -466,6 +467,10 @@ class ImportDB(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
+		self.add(npyscreen.TitleFixedText, name="Create a table if it does not exist")
+		
+		
+		
 		self.add(npyscreen.TitleFixedText, name="Enter the table name to import")
 		self.add(npyscreen.TitleText, name = "Table:", w_id="imptblname", value = "")
 		self.add(ImportTablesButton, name="Import")
@@ -484,7 +489,7 @@ class ImportTablesButton(npyscreen.ButtonPress):
 			cur = psqlCon.cursor()
 			
 			f = open(impTable, 'r')
-			cur.copy_from(f, impTable, sep="|")
+			cur.copy_from(f, impTable, sep=",")
 			psqlCon.commit()
 
 		except psycopg2.DatabaseError, e:
