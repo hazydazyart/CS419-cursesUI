@@ -188,7 +188,7 @@ class Mysqlf(npyscreen.Form):
 class MainOpt(npyscreen.FormBaseNewWithMenus):
 
 	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below." )
+		self.add(npyscreen.TitleFixedText, name = "Welcome! To get started, select an option from the menu." )
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
 		self.menu.addItem(text="User Information", onSelect=self.showinfo)
 #		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
@@ -202,6 +202,7 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.menu.addItem(text="Export Table Data", onSelect=self.exDB)
 		self.menu.addItem(text="Import Table Data", onSelect=self.impDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
+		self.menu.addItem(text="Switch Databases", onSelect=self.switch)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
 	def AdminMenu(self):
@@ -231,6 +232,9 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def showFAQ(self):
 		self.parentApp.switchForm('FAQ')
 	
+	def switch(self):
+		self.parentApp.switchForm('MAIN')
+		
 	def exit(self):
 		self.parentApp.switchForm(None)
 
@@ -468,8 +472,11 @@ class ImportDB(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
-		self.add(npyscreen.TitleFixedText, name="Enter the file to import")
-		self.add(npyscreen.TitleText, name = "Table:", w_id="imptblname", value = "")
+		self.add(npyscreen.TitleFixedText, name="[Important] There must be a table to import the data into. Go to the 'Enter a Query' page to create a table")
+		self.add(npyscreen.TitleFixedText, name="Enter the name of the table to import data into:")
+		self.add(npyscreen.TitleText, name = "Table Name:", w_id="imptblname", value = "")
+		self.add(npyscreen.TitleFixedText, name="Enter the name of the file to import data from:")
+		self.add(npyscreen.TitleText, name = "File Name:", w_id="impfilename", value = "")
 		self.add(ImportTablesButton, name="Import")
 		
 	def afterEditing(self):
@@ -478,6 +485,7 @@ class ImportDB(npyscreen.Form):
 #Import process referenced from: http://zetcode.com/db/postgresqlpythontutorial/
 class ImportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
+		impFile = self.parent.get_widget('impfilename').value
 		impTable = self.parent.get_widget('imptblname').value
 		
 		fopen = None
@@ -486,7 +494,7 @@ class ImportTablesButton(npyscreen.ButtonPress):
 			global psqlCon
 			cur = psqlCon.cursor()
 			
-			f = open(impTable, 'r')
+			f = open(impFile, 'r')
 			cur.copy_from(f, impTable, sep=",")
 			psqlCon.commit()
 
