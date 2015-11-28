@@ -473,10 +473,10 @@ class ImportDB(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
 		self.add(npyscreen.TitleFixedText, name="[Important]", value="There must be a table to import the data into.")
-		self.add(npyscreen.TitleFixedText, value="Go to the 'Enter a Query' page to create a table")
-		self.add(npyscreen.TitleFixedText, name="Enter the name of the table to import data into:")
+		self.add(npyscreen.TitleFixedText, name="", value="Go to the 'Enter a Query' page to create a table")
+		self.add(npyscreen.TitleFixedText, name="", value="Enter the name of the table to import data into:")
 		self.add(npyscreen.TitleText, name = "Table Name:", w_id="imptblname", value = "")
-		self.add(npyscreen.TitleFixedText, name="Enter the name of the file to import data from:")
+		self.add(npyscreen.TitleFixedText, name="", value="Enter the name of the file to import data from:")
 		self.add(npyscreen.TitleText, name = "File Name:", w_id="impfilename", value = "")
 		self.add(ImportTablesButton, name="Import")
 		
@@ -513,7 +513,7 @@ class ImportTablesButton(npyscreen.ButtonPress):
 			npyscreen.notify_confirm("Import Error!")
 		
 		finally:
-			npyscreen.notify_confirm("Successfully Imported %s" % impTable)
+			npyscreen.notify_confirm("Successfully Imported from file: %s" % impFile)
 			if f:
 				f.close()
 #Show FAQs
