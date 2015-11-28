@@ -472,7 +472,7 @@ class ImportDB(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Import a Table")
-		self.add(npyscreen.TitleFixedText, name="[Important] There must be a table to import the data into. Go to the 'Enter a Query' page to create a table")
+		self.add(npyscreen.TitleFixedText, name="[Important]", value="There must be a table to import the data into. Go to the 'Enter a Query' page to create a table")
 		self.add(npyscreen.TitleFixedText, name="Enter the name of the table to import data into:")
 		self.add(npyscreen.TitleText, name = "Table Name:", w_id="imptblname", value = "")
 		self.add(npyscreen.TitleFixedText, name="Enter the name of the file to import data from:")
