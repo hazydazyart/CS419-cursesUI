@@ -197,7 +197,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.menu.addItem(text="Browse a Table", onSelect=self.BrowseTable)
 		self.menu.addItem(text="Administration", onSelect=self.AdminMenu)
 #		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
-#		self.menu.addItem(text="Query Databases", onSelect=self.queryDB)
 #		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
 		self.menu.addItem(text="Export Table Data", onSelect=self.exDB)
 		self.menu.addItem(text="Import Table Data", onSelect=self.impDB)
@@ -219,9 +218,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		
 	def modDB(self):
 		self.parentApp.switchForm('EDITDB')
-	
-	def queryDB(self):
-		self.parentApp.switchForm('QRYDB')
 	
 	def exDB(self):
 		self.parentApp.switchForm('EXPORTDB')
@@ -403,26 +399,6 @@ class EditDB(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 
-#Select a database to run queries against
-class QryDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select a dabase to run queries against")
-		grid = self.add(npyscreen.GridColTitles)
-		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-	
 #Export a table
 class ExportDB(npyscreen.Form):
 	
