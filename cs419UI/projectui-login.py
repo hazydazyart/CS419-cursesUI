@@ -525,17 +525,6 @@ class FAQ(npyscreen.Form):
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
 		
-#Show Postgres Database names
-class ListDB(npyscreen.Form):
-	def create(self):
-		databases = getDatabaseNames()
-		self.add(npyscreen.TitleFixedText, name="List of Postgres Databases")
-		grid = self.add(npyscreen.GridColTitles)
-		grid.col_titles=("Name")
-		grid.values = databases
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
 #Execute a query
 class SQLQuery(npyscreen.Form):
 	def create(self):
@@ -631,26 +620,6 @@ class BrowseTableButton(npyscreen.ButtonPress):
 			npyscreen.notify_confirm('Error fetching data from table')
 		return
 	
-#PostgreSQL functions
-def getDatabaseNames():
-	con = None
-	rows = []
-	try:
-		con = psycopg2.connect(dbname="postgres", user="postgres")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
-		command = "SELECT datname FROM pg_database"
-		cur.execute(command)
-		rows = cur.fetchall()
-	except psycopg2.DatabaseError, e:
-		if con:
-			con.rollback()
-		print "Error listing databases " + e
-	finally:
-		if con:
-			con.close()
-		return rows
-
 def createPsqlDB(dbname, owner):
 	global psqlAdmin
 	msg = 'Successfully created database ' + dbname
