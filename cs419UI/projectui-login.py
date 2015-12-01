@@ -325,6 +325,7 @@ class FetchUsersButton(npyscreen.ButtonPress):
 			output = []
 			cols = [cn[0] for cn in cur.description]
 			output.append(cols)
+			print cols
 			rows = cur.fetchall()
 			for row in rows:
 				output.append(row)
