@@ -51,7 +51,7 @@ class projectApp(npyscreen.NPSAppManaged):
 	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
-	self.addForm('VIEWUSERS', ViewUsers)
+	self.addForm('USERINFO', UserInfo)
     	self.addForm('VIEWTB', BrowseTable)
     	self.addForm('DELETEDB', DeleteDB)
     	self.addForm('IMPORTDB', ImportDB)
@@ -289,7 +289,7 @@ class AdminMenu(npyscreen.Form):
 		self.parentApp.switchForm('DELETEDB')
 		
 	def goToUsers(self, *args, **keywords):
-		self.parentApp.switchForm('VIEWUSERS')
+		self.parentApp.switchForm('USERINFO')
 
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
