@@ -516,17 +516,17 @@ class FAQ(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name = "FAQ")
-		howtoq = ["To execute a query, press ^X to access the menu and select 'Enter a Query'.", "From there, you may enter one query at a time in the text box provided.", "Feedback will appear in the second text box.", "If a SELECT statement was entered, the requested values will be printed;", "if INSERT or DELETE queries were entered, a SUCCESS or FAILURE message (with reason for failure)", "will be displayed instead. If your user account does not have the appropriate privileges,", "you may be unable to enter your query."]
+		howtoq = ["To execute a query, press ^X to access the menu and select 'Enter a Query'.", "From there, you may enter one query at a time in the text box provided.", "Feedback will appear in the second text box.", "If a SELECT statement was entered, the requested values will be printed;", "if INSERT or DELETE queries were entered, a SUCCESS or FAILURE message", "(with reason for failure) will be displayed instead.", "If your user account does not have the appropriate privileges,", "you may be unable to execute your query successfully."]
 		self.add(npyscreen.TitleFixedText, name = "How to execute a query")
 		for line in howtoq:
 			self.add(npyscreen.FixedText, value=line)
 		
-		howtoswitch = ["To log out of a database, press ^X to access the menu and select 'Switch Databases'.", "You will be returned to the login screen, where the type of database", "may be selected again in case of a need to change between PostgreSQL and MySQL.", "Any active connection will be closed once this option is selected."]
+		howtoswitch = ["To log out of a database, press ^X to access the menu and select", "'Switch Databases'. You will be returned to the login screen,", "where the type of database may be selected again in case of a need to change", "between PostgreSQL and MySQL.", "Any active connection will be closed once this option is selected."]
 		self.add(npyscreen.TitleFixedText, name = "How to log in to a different database")
 		for line in howtoswitch:
 			self.add(npyscreen.FixedText, value=line)
 			
-		howtoadmin = ["To perform administrator functions, press ^X to access the menu and select 'Administration'.", "This will bring up the administration submenu, where databases may be created or deleted, and a list of users viewed.", "The list of users will vary based on which database has the active connection."]
+		howtoadmin = ["To perform administrator functions, press ^X to access the menu", "and select 'Administration'. This will bring up the administration submenu,", "where databases may be created or deleted,", "and a list of users viewed. The list of users will vary", "based on which database has the active connection."]
 		self.add(npyscreen.TitleFixedText, name = "How to perform administration")
 		for line in howtoadmin:
 			self.add(npyscreen.FixedText, value=line)
