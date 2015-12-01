@@ -309,7 +309,7 @@ class AdminViewUsersForm(npyscreen.ButtonPress):
 class UserInfo(npyscreen.Form):
 	def create(self):
 		self.add(FetchUsersButton, name="Press to Fetch User Information")
-		self.add(npyscreen.BoxTitle, name="Users:", w_id="viewusers", max_height=7, scroll_exit=True)
+		self.add(npyscreen.GridColTitles, name="Users:", w_id="viewusers", max_height=7, scroll_exit=True)
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
@@ -325,11 +325,10 @@ class FetchUsersButton(npyscreen.ButtonPress):
 			output = []
 			cols = [cn[0] for cn in cur.description]
 			output.append(cols)
-			print cols
 			rows = cur.fetchall()
 			for row in rows:
 				output.append(row)
-			self.parent.get_widget('viewusers').value = output
+			self.parent.get_widget('viewusers').values = output
 			self.parent.get_widget('viewusers').display()
 		except psycopg2.DatabaseError, e:
 			if psqlAdmin:
