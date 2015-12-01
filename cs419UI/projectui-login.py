@@ -306,7 +306,7 @@ class AdminViewUsersForm(npyscreen.ButtonPress):
 	def whenPressed(self):
 		self.parent.goToUsers()
 		
-class ViewUsers(npyscreen.Form):
+class UserInfo(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Press to Fetch User Information")
 		self.add(npyscreen.BoxTitle, name="Users:", w_id="viewusers", max_height=7, scroll_exit=True)
