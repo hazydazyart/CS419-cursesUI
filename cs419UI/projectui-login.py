@@ -517,7 +517,9 @@ class FAQ(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name = "FAQ")
 		howtoq = ["To execute a query, press ^X to access the menu and select 'Enter a Query'.", "From there, you may enter one query at a time in the text box provided. Feedback will appear in the second text box. If a SELECT statement was entered, the requested values will be printed; if INSERT or DELETE queries were entered, a SUCCESS or FAILURE message (with reason for failure) will be displayed instead.", "If your user account does not have the appropriate privledges, you may be unable to enter your query."]
-		self.add(npyscreen.BoxTitle, name = "How to execute a query", values=howtoq)
+		self.add(npyscreen.TitleFixedText, name = "How to execute a query")
+		for line in howtoq:
+			self.add(npyscreen.FixedText, value=line)
 		
 		
 	def afterEditing(self):
