@@ -521,7 +521,7 @@ class FAQ(npyscreen.Form):
 		for line in howtoq:
 			self.add(npyscreen.FixedText, value=line)
 		
-		howtoswitch = ["To log out of a database, press ^X to access the menu and select", "'Switch Databases'. You will be returned to the login screen,", "where the type of database may be selected again in case of a need to change", "between PostgreSQL and MySQL.", "Any active connection will be closed once this option is selected."]
+		howtoswitch = ["To log out of a database, press ^X to access the menu and select", "'Switch Databases'. You will be returned to the login screen,", "where the type of database may be selected again in case of a need to", "change between PostgreSQL and MySQL.", "Any active connection will be closed once this option is selected."]
 		self.add(npyscreen.TitleFixedText, name = "How to log in to a different database")
 		for line in howtoswitch:
 			self.add(npyscreen.FixedText, value=line)
