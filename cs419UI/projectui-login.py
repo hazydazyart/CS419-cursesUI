@@ -195,7 +195,7 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 		self.menu.addItem(text="Administration", onSelect=self.AdminMenu)
 		self.menu.addItem(text="Export Table Data", onSelect=self.exDB)
 		self.menu.addItem(text="Import Table Data", onSelect=self.impDB)
-#		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
+		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
 		self.menu.addItem(text="Switch Databases", onSelect=self.switch)
 		self.menu.addItem(text="Exit", onSelect=self.exit)
 	
