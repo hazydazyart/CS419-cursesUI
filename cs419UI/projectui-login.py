@@ -51,7 +51,7 @@ class projectApp(npyscreen.NPSAppManaged):
 	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
-		self.addForm('VIEWUSERS', ViewUsers)
+	self.addForm('VIEWUSERS', ViewUsers)
     	self.addForm('VIEWTB', BrowseTable)
     	self.addForm('DELETEDB', DeleteDB)
     	self.addForm('IMPORTDB', ImportDB)
@@ -110,7 +110,7 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			psqlAdmin.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		
 		except psycopg2.DatabaseError, e:
-			npyscreen.notify_confirm('Unable to connect to administration database. Administration functions may not be available.')
+			npyscreen.notify_confirm('Unable to connect to administrator database. Administration functions may not be available.')
 			
 		self.parent.goToMain()
 
@@ -190,14 +190,9 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name = "Welcome! To get started, select an option from the menu." )
 		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
-		self.menu.addItem(text="User Information", onSelect=self.showinfo)
-#		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.addDB)
-#		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.listDB)
 		self.menu.addItem(text="Enter a Query", onSelect=self.SQLQuery)
 		self.menu.addItem(text="Browse a Table", onSelect=self.BrowseTable)
 		self.menu.addItem(text="Administration", onSelect=self.AdminMenu)
-#		self.menu.addItem(text="Create & Modify Databases", onSelect=self.modDB)
-#		self.menu.addItem(text="Import a Database", onSelect=self.impDB)
 		self.menu.addItem(text="Export Table Data", onSelect=self.exDB)
 		self.menu.addItem(text="Import Table Data", onSelect=self.impDB)
 #		self.menu.addItem(text="FAQ", onSelect=self.showFAQ)
@@ -206,9 +201,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	
 	def AdminMenu(self):
 		self.parentApp.switchForm('ADMINMENU')
-		
-	def showinfo(self):
-		self.parentApp.switchForm('USERINFO')
 	
 	def SQLQuery(self):
 		self.parentApp.switchForm('SQLQRY')
@@ -284,17 +276,6 @@ class MyMainOpt(npyscreen.FormBaseNewWithMenus):
 		self.parentApp.switchForm(None)
 
 ### BEGIN POSTGRES
-#Show signed in user's information
-class UserInfo(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Name:", value="John Johnson")
-		self.add(npyscreen.TitleFixedText, name = "Role:", value="User")
-		self.add(npyscreen.TitleFixedText, name = "Number of Databases", value="2")
-	
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
 class AdminMenu(npyscreen.Form):
 	def create(self):
 		self.add(AdminCreateDatabaseForm, name="Create a Database")
