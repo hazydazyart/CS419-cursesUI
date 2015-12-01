@@ -322,9 +322,13 @@ class FetchUsersButton(npyscreen.ButtonPress):
 			cur = psqlAdmin.cursor()
 			cmd = """SELECT u.usename AS "User name", u.usesysid AS "User ID", CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create database' AS pg_catalog.text) WHEN u.usesuper THEN CAST('superuser' AS pg_catalog.text) WHEN u.usecreatedb THEN CAST('create database' AS pg_catalog.text) ELSE CAST('' AS pg_catalog.text) END AS "Attributes" FROM pg_catalog.pg_user u ORDER BY 1;"""
 			cur.execute(cmd)
+			output = []
+			cols = [cn[0] for cn in cur.description]
+			output.append(cols)
 			rows = cur.fetchall()
-			print rows
-			self.parent.get_widget('viewusers').value = rows
+			for row in rows:
+				output.append(row)
+			self.parent.get_widget('viewusers').value = output
 			self.parent.get_widget('viewusers').display()
 		except psycopg2.DatabaseError, e:
 			if psqlAdmin:
