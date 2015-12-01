@@ -316,12 +316,11 @@ class UserInfo(npyscreen.Form):
 		
 # Command to fetch user info from http://www.postgresql.org/message-id/1121195544.8208.242.camel@state.g2switchworks.com
 class FetchUsersButton(npyscreen.ButtonPress):
-	cmd = """SELECT u.usename AS "User name", u.usesysid AS "User ID", CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create database' AS pg_catalog.text) WHEN u.usesuper THEN CAST('superuser' AS pg_catalog.text) WHEN u.usecreatedb THEN CAST('create database' AS pg_catalog.text) ELSE CAST('' AS pg_catalog.text) END AS "Attributes" FROM pg_catalog.pg_user u ORDER BY 1;"""
-
 	def whenPressed(self):
 		try:
 			global psqlAdmin
 			cur = psqlAdmin.cursor()
+			cmd = """SELECT u.usename AS "User name", u.usesysid AS "User ID", CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create database' AS pg_catalog.text) WHEN u.usesuper THEN CAST('superuser' AS pg_catalog.text) WHEN u.usecreatedb THEN CAST('create database' AS pg_catalog.text) ELSE CAST('' AS pg_catalog.text) END AS "Attributes" FROM pg_catalog.pg_user u ORDER BY 1;"""
 			cur.execute(cmd)
 			rows = cur.fetchall()
 
