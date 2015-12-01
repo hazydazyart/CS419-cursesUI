@@ -327,7 +327,7 @@ class FetchUsersButton(npyscreen.ButtonPress):
 			output = []
 			for row in rows:
 				output.append(row)
-			self.parent.get_widget('viewusers').values = [val[0] for val in output]
+			self.parent.get_widget('viewusers').values = output
 			self.parent.get_widget('viewusers').display()
 		except psycopg2.DatabaseError, e:
 			if psqlAdmin:
