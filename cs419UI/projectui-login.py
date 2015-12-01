@@ -324,10 +324,8 @@ class FetchUsersButton(npyscreen.ButtonPress):
 			cur = psqlAdmin.cursor()
 			cur.execute(cmd)
 			rows = cur.fetchall()
-			output = []
-			for row in rows:
-				output.append(row)
-			self.parent.get_widget('viewusers').values = output
+
+			self.parent.get_widget('viewusers').value = rows
 			self.parent.get_widget('viewusers').display()
 		except psycopg2.DatabaseError, e:
 			if psqlAdmin:
