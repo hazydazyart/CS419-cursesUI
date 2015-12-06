@@ -4,7 +4,7 @@ import sys
 
 con = None
 
-con = con = connectt("dbname='postgres' user='postgres'")
+con = con = connect("dbname='postgres' user='postgres'")
 cur = con.cursor()
 cur.execute("CREATE DATABASE movies")
 cur.commit()
