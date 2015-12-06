@@ -4,15 +4,15 @@ import sys
 
 con = None
 
-con = psycopg2.connect("dbname='movies' user='postgres'")   
+con = con = connectt("dbname='postgres' user='postgres'")
 cur = con.cursor()
-cur.execute("CREATE DATABASE movies WITH OWNER POSTGRES")
+cur.execute("CREATE DATABASE movies")
 cur.commit()
 con.close()
 
 try:
      
-    con = psycopg2.connect("dbname='movies' user='postgres'")   
+    con = psycopg2.connect("dbname='movies' user='postgres'")
     
     cur = con.cursor()
 
