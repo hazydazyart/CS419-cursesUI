@@ -23,7 +23,6 @@ class projectApp(npyscreen.NPSAppManaged):
     def onStart(self):
     	self.addForm('MAINOPT', MainOpt)  
     	self.addForm('MAIN', MainLogin, name="Project UI")
-	self.addForm('ROOTMENU', RootMenu) 
 	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
