@@ -8,7 +8,6 @@ con = psycopg2.connect("dbname='postgres' user='postgres'")
 con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cur = con.cursor()
 cur.execute("CREATE DATABASE movies")
-cur.commit()
 con.close()
 
 try:
