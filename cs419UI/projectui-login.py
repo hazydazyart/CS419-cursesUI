@@ -134,56 +134,6 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def exit(self):
 		self.parentApp.switchForm(None)
 
-#Main Screen + Menu MYSQL
-class MyMainOpt(npyscreen.FormBaseNewWithMenus):
-
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select an option from the menu below for MySQL." )
-		self.menu = self.add_menu(name="Main Menu", shortcut="^M")
-		self.menu.addItem(text="User Information", onSelect=self.Myshowinfo)
-#		self.menu.addItem(text="Add PostgreSQL Database", onSelect=self.MyaddDB)
-#		self.menu.addItem(text="View PostgreSQL Databases", onSelect=self.MylistDB)
-		self.menu.addItem(text="Enter a Query", onSelect=self.MySQLQuery)
-		self.menu.addItem(text="Browse a Table", onSelect=self.MyBrowseTable)
-		self.menu.addItem(text="Administration", onSelect=self.RootMenu)
-#		self.menu.addItem(text="Create & Modify Databases", onSelect=self.MymodDB)
-#		self.menu.addItem(text="Query Databases", onSelect=self.MyqueryDB)
-#		self.menu.addItem(text="Import a Database", onSelect=self.MyexDB)
-#		self.menu.addItem(text="Export a Database", onSelect=self.MyimpDB)
-#		self.menu.addItem(text="FAQ", onSelect=self.MyshowFAQ)
-		self.menu.addItem(text="Exit", onSelect=self.Myexit)
-	
-	def RootMenu(self):
-		self.parentApp.switchForm('ROOTMENU')
-		
-	def Myshowinfo(self):
-		self.parentApp.switchForm('MYUSERINFO')
-	
-	def MySQLQuery(self):
-		self.parentApp.switchForm('MYSQLQRY')
-		
-	def MyBrowseTable(self):
-		self.parentApp.switchForm('MYVIEWTB')
-		
-	def MymodDB(self):
-		self.parentApp.switchForm('MYEDITDB')
-	
-	def MyqueryDB(self):
-		self.parentApp.switchForm('MYQRYDB')
-	
-	def MyexDB(self):
-		self.parentApp.switchForm('MYEXPORTDB')
-	
-	def MyimpDB(self):
-		self.parentApp.switchForm('MYIMPORTDB')
-	
-	def MyshowFAQ(self):
-		self.parentApp.switchForm('MYFAQ')
-	
-	def Myexit(self):
-		self.parentApp.switchForm(None)
-
-### BEGIN POSTGRES
 class AdminMenu(npyscreen.Form):
 	def create(self):
 		self.add(AdminCreateDatabaseForm, name="Create a Database")
