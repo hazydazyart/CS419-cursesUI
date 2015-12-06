@@ -18,36 +18,13 @@ psqlPass = None
 psqlHost = None
 psqlPort = None
 
-### MySQL Connection variables
-
-mysqlCon = None
-
-### MySQL user variables
-
-mysqlDbase = None
-mysqlUser = None
-mysqlPass = None
-mysqlHost = None
-
 #Main form manager
 class projectApp(npyscreen.NPSAppManaged):
     def onStart(self):
-    	self.addForm('MAINOPT', MainOpt) 
-    	self.addForm('MYMAINOPT', MyMainOpt) #
+    	self.addForm('MAINOPT', MainOpt)  
     	self.addForm('MAIN', MainLogin, name="Project UI")
-    	self.addForm('MYSQL', Mysqlf) #
     	self.addForm('POSTGRESQL', Postgref)
-    	self.addForm('USERINFO', UserInfo)
-    	self.addForm('MYUSERINFO', MyUserInfo) #
-	self.addForm('ROOTMENU', RootMenu) #
-    	self.addForm('MYCREATEDB', MyCreateDB) #
-    	self.addForm('MYSQLQRY', MySQLQuery) #
-    	self.addForm('MYVIEWTB', MyBrowseTable) #
-    	self.addForm('MYDELETEDB', MyDeleteDB) #
-    	self.addForm('MYQRYDB', MyQryDB) #
-    	self.addForm('MYIMPORTDB', MyImportDB) #
-    	self.addForm('MYEXPORTDB', MyExportDB) #
-    	self.addForm('MYFAQ', MyFAQ) #
+	self.addForm('ROOTMENU', RootMenu) 
 	self.addForm('ADMINMENU', AdminMenu)
     	self.addForm('CREATEDB', CreateDB)
     	self.addForm('SQLQRY', SQLQuery)
@@ -58,24 +35,6 @@ class projectApp(npyscreen.NPSAppManaged):
     	self.addForm('EXPORTDB', ExportDB)
     	self.addForm('FAQ', FAQ)
 
-#Select DB Type Screen
-class MainLogin (npyscreen.Form):
-		
-	def create(self):
-		msg = "Select a database type"
-		self.add(npyscreen.TitleFixedText, name = msg)
-		self.ch = self.add(npyscreen.TitleSelectOne, max_height=4, value=[0,], name="Select",
-			values = ["MySQL", "PostgreSQL"], scroll_exit=True)
-
-	def afterEditing(self):
-		
-		selectedOpt = str(self.ch.values[self.ch.value[0]])
-		
-		if selectedOpt == 'MySQL':
-			self.parentApp.switchForm('MYSQL')
-		
-		elif selectedOpt == 'PostgreSQL':
-			self.parentApp.switchForm('POSTGRESQL')
 			
 class ConnectToPostgres(npyscreen.ButtonPress):
 	def whenPressed(self):
@@ -114,37 +73,8 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			
 		self.parent.goToMain()
 
-class ConnectToMysql(npyscreen.ButtonPress):
-	def whenPressed(self):
-		global mysqlHost
-		global mysqlDbase
-		global mysqlPass
-		global mysqlUser
-		
-		#get values from form
-		mysqlHost = self.parent.get_widget('host').value
-		mysqlUser = self.parent.get_widget('user').value
-		mysqlDbase = self.parent.get_widget('dbase').value
-		mysqlPass = self.parent.get_widget('pass').value
-		
-		#try to connect
-		try:
-			global mysqlCon
-			
-			#mysqlCon = mysql.connector.connect(host='localhost', database='mysql', user='root', password='mysql')
-			mysqlCon = mysql.connector.connect(host=mysqlHost, database=mysqlDbase, user=mysqlUser, password=mysqlPass)
-
-			if mysqlCon.is_connected():
-				print('Connected to MySQL database')
-			
-		except errors as e:
-			npyscreen.notify_confirm('Connection error. Please try again')
-			return
-		
-		self.parent.goToMainMy()
-
 #Show signed in user's information
-class Postgref(npyscreen.Form):
+class MainLogin(npyscreen.Form):
 	
 	def create(self):
 		msg1 = "Sign into an existing PostgreSQL database"
@@ -164,26 +94,6 @@ class Postgref(npyscreen.Form):
 	def goToMain(self, *args, **keywords):
 		self.parentApp.switchForm('MAINOPT')
 
-#Show signed in user's information
-class Mysqlf(npyscreen.Form):
-	
-	def create(self):
-		msg1 = "Sign into an existing MySQL database or create a new account."
-		msg2 = "*Required for non-local databases"
-		self.add(npyscreen.TitleFixedText, name = msg1)
-		self.add(npyscreen.TitleText, name = "Username:", w_id="user", value= "root")
-		self.add(npyscreen.TitleText, name = "Password:", w_id="pass", value= "mysql")
-		self.add(npyscreen.TitleText, name = "* Host:", w_id="host", value= "localhost")
-		self.add(npyscreen.TitleText, name = "* Database:", w_id="dbase", value= "mysql")
-		self.add(npyscreen.TitleFixedText, name = msg2)
-		self.add(ConnectToMysql, name = "Connect to Database")
-	
-	def on_ok(self):
-		self.parentApp.switchForm('MYMAIN')
-
-	def goToMainMy(self, *args, **keywords):
-		self.parentApp.switchForm('MYMAINOPT')
-		
 #Main Screen + Menu
 class MainOpt(npyscreen.FormBaseNewWithMenus):
 
@@ -521,7 +431,7 @@ class FAQ(npyscreen.Form):
 		for line in howtoq:
 			self.add(npyscreen.FixedText, value=line)
 		
-		howtoswitch = ["To log out of a database, press ^X to access the menu and select", "'Switch Databases'. You will be returned to the login screen,", "where the type of database may be selected again in case of a need to", "change between PostgreSQL and MySQL.", "Any active connection will be closed once this option is selected."]
+		howtoswitch = ["To log out of a database, press ^X to access the menu and select", "'Switch Databases'. You will be returned to the login screen,", "where you may re-enter your login credentials", "to log into a different database."]
 		self.add(npyscreen.TitleFixedText, name = "How to log in to a different database")
 		for line in howtoswitch:
 			self.add(npyscreen.FixedText, value=line)
@@ -641,328 +551,6 @@ def createPsqlDB(dbname, owner):
 			psqlAdmin.rollback()
 		msg = 'Error creating database: %s' % e
 	return msg
-
-### END POSTGRES
-
-
-### BEGIN MYSQL
-
-#Show signed in user's information
-class MyUserInfo(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Name:", value="Root")
-		self.add(npyscreen.TitleFixedText, name = "Role:", value="User")
-		self.add(npyscreen.TitleFixedText, name = "Number of Databases", value="2")
-	
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-class RootMenu(npyscreen.Form):
-	def create(self):
-		self.add(RootCreateDatabaseForm, name="Create a Database")
-		self.add(RootDeleteDatabaseForm, name="Delete a Database")
-		
-	def goToCreate(self, *args, **keywords):
-		self.parentApp.switchForm('MYCREATEDB')
-		
-	def goToDelete(self, *args, **keywords):
-		self.parentApp.switchForm('MYDELETEDB')
-
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-class RootCreateDatabaseForm(npyscreen.ButtonPress):
-	def whenPressed(self):
-		self.parent.goToCreate()
-
-class RootDeleteDatabaseForm(npyscreen.ButtonPress):
-	def whenPressed(self):
-		self.parent.goToDelete()
-		
-class MyCreateDB(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Create a new Database")
-	
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-class MyDeleteDB(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Delete a Database")
-	
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-#Show create a new database or select a database to modify
-class MyEditDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleText, name = "Create: ", value="New Database")
-		grid = self.add(npyscreen.GridColTitles)
-		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-#Select a database to run queries against
-class MyQryDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select a dabase to run queries against")
-		grid = self.add(npyscreen.GridColTitles)
-		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-#Import a database
-class MyImportDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Import a database")
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-#Export a database
-class MyExportDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Select a database to export")
-		grid = self.add(npyscreen.GridColTitles)
-		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-#Show FAQs
-class MyFAQ(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name = "Show FAQs here")
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-#Create MySQL database
-class MyAddDB(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Add a MySQL Database")
-		self.dbname = self.add(npyscreen.TitleText, name = "Database name: ")
-		self.owner = self.add(npyscreen.TitleText, name = "Owner name: ")
-		
-	def beforeEditing(self):
-		self.dbname.value = ''
-		self.owner.value = ''
-		
-	def afterEditing(self):
-		name = self.dbname.value
-		owner = self.owner.value
-		msg = MycreateDB(name, owner)
-		npyscreen.notify_confirm(msg)
-		self.parentApp.switchFormPrevious()
-
-#Show Mysql Database names
-class MyListDB(npyscreen.Form):
-	def create(self):
-		databases = getDatabaseNames()
-		self.add(npyscreen.TitleFixedText, name="List of MySQL Databases")
-		grid = self.add(npyscreen.GridColTitles)
-		grid.col_titles=("Name")
-		grid.values = databases
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-#Execute a query
-class MySQLQuery(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Enter a Query")
-		self.add(npyscreen.MultiLineEditableBoxed, w_id="query", max_height=5, max_width=50, scroll_exit=True)
-		self.add(MyExecuteQueryButton, name="Execute query")
-		self.add(npyscreen.TitleFixedText, name="Query results below:")
-		self.add(npyscreen.BoxTitle, w_id="resultstable", max_height=10, max_width=50, scroll_exit=True)
-	
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
-class MyExecuteQueryButton(npyscreen.ButtonPress):
-	def whenPressed(self):
-		queries = self.parent.get_widget('query').values
-		
-		try:
-			global mysqlCon
-			cur = mysqlCon.cursor()
-			for query in queries:
-				cur.execute(query)
-#			mysqlCon.commit()
-			
-			#If command was select, display the data
-			command = cur.query.partition(' ')[0]
-			if(command == "SELECT"):
-				rows = cur.fetchall()
-				self.parent.get_widget('resultstable').values = rows
-				self.parent.get_widget('resultstable').display()
-			elif (command == "DROP"):
-				npyscreen.notify_confirm("Table dropped successfully.")
-			else:
-				output = []
-				output.append(cur.query)
-				output.append("SUCCESS")
-				self.parent.get_widget('resultstable').values = output
-				self.parent.get_widget('resultstable').display()
-
-		except errors as e:
-			if mysqlCon:
-				mysqlCon.rollback()
-			npyscreen.notify_confirm("Error executing query!")	
-#Get all values from table
-class MyBrowseTable(npyscreen.Form):
-	def create(self):
-		self.add(npyscreen.TitleFixedText, name="Browse a Table")
-		self.add(MyFetchTablesButton, name="Refresh table names")
-		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True)
-		self.add(MyBrowseTableButton, name="Browse Table")
-		self.add(npyscreen.BoxTitle, name="All data in table", w_id="tdata", max_height=7, scroll_exit=True)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-		
-class MyFetchTablesButton(npyscreen.ButtonPress):
-	def whenPressed(self):
-		try:
-			global mysqlCon
-			cur = mysqlCon.cursor()
-			cur.execute("""SELECT table_name from information_schema.tables WHERE table_schema = 'public'""")
-			rows = cur.fetchall()
-			output = []
-			for row in rows:
-				output.append(row)
-			self.parent.get_widget('tmenu').values = [val[0] for val in output]
-			self.parent.get_widget('tmenu').display()
-		except errors as e:
-			if mysqlCon:
-				mysqlCon.rollback()
-			npyscreen.notify_confirm('Could not fetch table names.')
-		return
-		
-class MyBrowseTableButton(npyscreen.ButtonPress):
-	def whenPressed(self):
-		selected = self.parent.get_widget('tmenu').get_selected_objects()
-		try:
-			global mysqlCon
-			cur = mysqlCon.cursor()
-			query = "SELECT * FROM " + str(selected[0])
-			cur.execute(query)
-			output = []
-			cols = [cn[0] for cn in cur.description]
-			output.append(cols)
-			rows = cur.fetchall()
-			for row in rows:
-				output.append(row)
-			self.parent.get_widget('tdata').values = output
-			self.parent.get_widget('tdata').display()
-			
-		except errors as e:
-			if mysqlCon:
-				mysqlCon.rollback()
-			npyscreen.notify_confirm('Error fetching data from table')
-		return
-		
-#MYSQL functions
-def MygetDatabaseNames():
-	con = None
-	rows = []
-	try:
-		con = mysql.connector.connect(dbname="mysql", user="mysql")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
-		command = "SELECT datname FROM pg_database"
-		cur.execute(command)
-		rows = cur.fetchall()
-	except errors as e:
-		if con:
-			con.rollback()
-		print "Error listing databases " + e
-	finally:
-		if con:
-			con.close()
-		return rows
-
-def MycreateDB(dbname, owner):
-	con = None
-	msg = 'Successfully created database ' + dbname
-	try:
-		con = mysql.connector.connect(dbname="mysql", user="mysql")
-		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-		cur = con.cursor()
-		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
-		cur.execute(command)
-		rows = cur.fetchall()
-	except errors as e:
-		if con:
-			con.rollback()
-		msg = 'Error creating database, ' + e
-	finally:
-		if con:
-			con.close()
-		return msg
-		
-def MyselectAll(table):
-	global mysqlCon
-	output = []
-	try:
-		cur = mysqlCon.cursor()
-		cur.execute("SELECT * FROM action")
-		values = cur.fetchall()
-		for row in values:
-			output.append(row)
-	except errors as e:
-		if mysqlCon:
-			mysqlCon.rollback()
-		print "Error fetching data"
-	finally:
-		return output
-		
-def MyexecuteQuery(query):
-	global mysqlCon
-	msg = 'Successfully executed query!'
-	try:
-		cur = mysqlCon.cursor()
-		cur.execute(query)
-	except errors as e:
-		if mysqlCon:
-			mysqlCon.rollback()
-		msg = 'Error: %s ' % e
-	finally:
-		return msg
 
 if __name__ == '__main__':
     PA = projectApp()
