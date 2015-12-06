@@ -19,3 +19,5 @@ echo "local    all             all                                  trust" >> "$
 echo "host    all             all             all                     trust" >> "$PG_HBA"
 service postgresql restart
 git clone https://github.com/megaconle/CS419-cursesUI.git
+cd CS419-cursesUI.git
+python psqlSampleDB.py
