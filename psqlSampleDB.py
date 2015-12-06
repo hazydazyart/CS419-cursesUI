@@ -4,7 +4,7 @@ import sys
 
 con = None
 
-con = con = connect("dbname='postgres' user='postgres'")
+con = psycopg2.connect("dbname='postgres' user='postgres'")
 cur = con.cursor()
 cur.execute("CREATE DATABASE movies")
 cur.commit()
