@@ -1,10 +1,8 @@
 import npyscreen
 import curses
 import psycopg2
-import mysql.connector
 import csv
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from mysql.connector import errors
 
 ### PostgreSQL connection variables
 
