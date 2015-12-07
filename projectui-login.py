@@ -278,8 +278,8 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			global psqlCon
 			cur = psqlCon.cursor()
 			
-			f = open(expTable, 'w')
-			cur.copy_to(f, expTable, sep=",")
+			f = open(fout, 'w')
+			cur.copy_to(f, fout, sep=",")
 
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm("Database Error: %s" % e)
@@ -407,6 +407,7 @@ class ExecuteQueryButton(npyscreen.ButtonPress):
 			if psqlCon:
 				psqlCon.rollback()
 			npyscreen.notify_confirm("Error executing query!")	
+			
 #Get all values from table
 class BrowseTable(npyscreen.Form):
 	def create(self):
