@@ -254,39 +254,14 @@ class DeleteDbButton(npyscreen.ButtonPress):
 		npyscreen.notify_confirm('Successfully dropped database')
 		return
 
-#Show create a new database or select a database to modify
-class EditDB(npyscreen.Form):
-	
-	def create(self):
-		self.add(npyscreen.TitleText, name = "Create: ", value="New Database")
-		grid = self.add(npyscreen.GridColTitles)
-		
-		grid.col_titles=("col1", "col2", "col3", "col4")
-		grid.values = []
-		
-		for x in range(3):
-			row = []
-        	for y in range(4):
-        		row.append("x: " + str(x) + " y: "+ str(y))
-        	
-        	grid.values.append(row)
-		
-	def afterEditing(self):
-		self.parentApp.switchFormPrevious()
-
 #Export a table
 class ExportDB(npyscreen.Form):
 	
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Export a Table")
 		self.add(FetchTablesButton, name="Refresh table names")
-		self.add(npyscreen.TitleSelectOne, name="Tables:", w_id="tmenu", max_height=5, scroll_exit=True)
-		self.add(BrowseTableButton, name="Browse Table")
-		self.add(npyscreen.BoxTitle, name="All data in table", w_id="tdata", max_height=7, scroll_exit=True)
-		
-		self.add(npyscreen.TitleFixedText, name="Enter the table name to export")
-		self.add(npyscreen.TitleText, name = "Table:", w_id="tblname", value = "")
-		self.add(ExportTablesButton, name="Export")
+		self.add(npyscreen.TitleSelectOne, name="Chose a table:", w_id="tmenu", max_height=5, scroll_exit=True)
+		self.add(ExportTablesButton, name="Export Selected Table")
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
@@ -294,7 +269,8 @@ class ExportDB(npyscreen.Form):
 #Export process referenced from: http://zetcode.com/db/postgresqlpythontutorial/
 class ExportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
-		expTable = self.parent.get_widget('tblname').value
+		expTable = self.parent.get_widget('tmenu').get_selected_objects()
+		fout = str(expTable[0]) + '.csv'
 		
 		f = None
 		
@@ -306,12 +282,11 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			cur.copy_to(f, expTable, sep=",")
 
 		except psycopg2.DatabaseError, e:
-			npyscreen.notify_confirm("Database Error!")
+			npyscreen.notify_confirm("Database Error: %s" % e)
 		
 		except IOError, e:
-			npyscreen.notify_confirm("Export Error!")
-			print 'Error %s' % e
-			sys.exit(1)
+			npyscreen.notify_confirm("Export Error: %s" % e)
+			return
 		
 		finally:
 			npyscreen.notify_confirm("Successfully Exported %s" % expTable)
