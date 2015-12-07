@@ -283,15 +283,15 @@ class ExportTablesButton(npyscreen.ButtonPress):
 
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm("Database Error: %s" % e)
+			return
 		
 		except IOError, e:
 			npyscreen.notify_confirm("Export Error: %s" % e)
 			return
-		
-		finally:
-			npyscreen.notify_confirm("Successfully Exported %s" % expTable)
-			if f:
-				f.close()
+
+		npyscreen.notify_confirm("Successfully Exported %s" % expTable)
+		if f:
+			f.close()
 
 #Import a table
 class ImportDB(npyscreen.Form):
