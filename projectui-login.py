@@ -279,7 +279,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			global psqlCon
 			cur = psqlCon.cursor()
 			
-			f = open(fout, 'r+')
+			f = open(fout, 'w')
 			cur.copy_to(f, expTable, sep=",")
 
 		except psycopg2.DatabaseError, e:
