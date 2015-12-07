@@ -269,8 +269,9 @@ class ExportDB(npyscreen.Form):
 #Export process referenced from: http://zetcode.com/db/postgresqlpythontutorial/
 class ExportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
-		expTable = self.parent.get_widget('tmenu').get_selected_objects()
-		fout = str(expTable[0]) + '.csv'
+		selected = self.parent.get_widget('tmenu').get_selected_objects()
+		expTable = str(selected[0])
+		fout = expTable + '.csv'
 		
 		f = None
 		
@@ -279,7 +280,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			cur = psqlCon.cursor()
 			
 			f = open(fout, 'w')
-			cur.copy_to(f, fout, sep=",")
+			cur.copy_to(f, expTable, sep=",")
 
 		except psycopg2.DatabaseError, e:
 			npyscreen.notify_confirm("Database Error: %s" % e)
