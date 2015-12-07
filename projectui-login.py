@@ -271,7 +271,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		selected = self.parent.get_widget('tmenu').get_selected_objects()
 		expTable = str(selected[0])
-		fout = './' + expTable + '.csv'
+		fout = expTable + '.csv'
 		
 		f = None
 		
@@ -279,7 +279,7 @@ class ExportTablesButton(npyscreen.ButtonPress):
 			global psqlCon
 			cur = psqlCon.cursor()
 			
-			f = open(fout, 'w')
+			f = open(fout, 'r+')
 			cur.copy_to(f, expTable, sep=",")
 
 		except psycopg2.DatabaseError, e:
