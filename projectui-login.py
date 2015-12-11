@@ -5,7 +5,6 @@ import csv
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 ### PostgreSQL connection variables
-
 psqlCon = None
 psqlAdmin = None
 
@@ -59,6 +58,8 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			npyscreen.notify_confirm(msg)
 			return
 
+		# Separate admin connection for testing purposes, in case the user logged in as doesn't have permissions.
+		# Normally this extra connection wouldn't exist.
 		try:
 			global psqlAdmin
 			psqlAdmin = psycopg2.connect(database='postgres', user='postgres')
@@ -69,7 +70,8 @@ class ConnectToPostgres(npyscreen.ButtonPress):
 			
 		self.parent.goToMain()
 
-#Show signed in user's information
+# Login screen to connect to a PostgreSQL database. Default values is the test database created by the team,
+# but the fields can be overwritten to connect to another database.
 class MainLogin(npyscreen.Form):
 	
 	def create(self):
@@ -132,6 +134,8 @@ class MainOpt(npyscreen.FormBaseNewWithMenus):
 	def exit(self):
 		self.parentApp.switchForm(None)
 
+### BEGIN ADMIN FUNCTIONS ###
+# Main admin menu with administration options
 class AdminMenu(npyscreen.Form):
 	def create(self):
 		self.add(AdminCreateDatabaseForm, name="Create a Database")
@@ -149,7 +153,8 @@ class AdminMenu(npyscreen.Form):
 
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
-		
+
+# The following 3 classes trigger admin functions described below 
 class AdminCreateDatabaseForm(npyscreen.ButtonPress):
 	def whenPressed(self):
 		self.parent.goToCreate()
@@ -161,7 +166,8 @@ class AdminDeleteDatabaseForm(npyscreen.ButtonPress):
 class AdminViewUsersForm(npyscreen.ButtonPress):
 	def whenPressed(self):
 		self.parent.goToUsers()
-		
+
+#User info menu - when button is pressed, list of users and their permissions is displayed
 class UserInfo(npyscreen.Form):
 	def create(self):
 		self.add(FetchUsersButton, name="Press to Fetch User Information")
@@ -191,7 +197,8 @@ class FetchUsersButton(npyscreen.ButtonPress):
 				psqlAdmin.rollback()
 			npyscreen.notify_confirm('Could not fetch user info: %s' % e)
 		return
-		
+
+# Creates a new database with the specified name and owner
 class CreateDB(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Add a PostgreSQL Database")
@@ -208,7 +215,8 @@ class CreateDB(npyscreen.Form):
 		msg = createPsqlDB(name, owner)
 		npyscreen.notify_confirm(msg)
 		self.parentApp.switchFormPrevious()
-		
+
+# Displays database names in an option list. When button is pressed, selected database is deleted.
 class DeleteDB(npyscreen.Form):
 	def create(self):
 		self.add(npyscreen.TitleFixedText, name="Delete a Database")
@@ -218,7 +226,8 @@ class DeleteDB(npyscreen.Form):
 		
 	def afterEditing(self):
 		self.parentApp.switchFormPrevious()
-		
+
+# Function to select all database names
 class FetchDbsButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		try:
@@ -236,7 +245,8 @@ class FetchDbsButton(npyscreen.ButtonPress):
 				psqlAdmin.rollback()
 			npyscreen.notify_confirm('Could not fetch database names: %s' % e)
 		return
-		
+
+# Function to drop database selected from DeleteDB screen
 class DeleteDbButton(npyscreen.ButtonPress):
 	def whenPressed(self):
 		selected = self.parent.get_widget('dmenu').get_selected_objects()
@@ -253,6 +263,21 @@ class DeleteDbButton(npyscreen.ButtonPress):
 			return
 		npyscreen.notify_confirm('Successfully dropped database')
 		return
+
+# Triggered by CreateDB, commits the create database query
+def createPsqlDB(dbname, owner):
+	global psqlAdmin
+	msg = 'Successfully created database ' + dbname
+	try:
+		cur = psqlAdmin.cursor()
+		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
+		cur.execute(command)
+	except psycopg2.DatabaseError, e:
+		if psqlAdmin:
+			psqlAdmin.rollback()
+		msg = 'Error creating database: %s' % e
+	return msg
+### END ADMIN FUNCTIONS ###
 
 #Export a table
 class ExportDB(npyscreen.Form):
@@ -395,8 +420,10 @@ class ExecuteQueryButton(npyscreen.ButtonPress):
 				rows = cur.fetchall()
 				self.parent.get_widget('resultstable').values = rows
 				self.parent.get_widget('resultstable').display()
+			# If command was drop, confirm the table was dropped
 			elif (command == "DROP"):
 				npyscreen.notify_confirm("Table dropped successfully.")
+			# Otherwise, inform user of their command and that it was a success
 			else:
 				output = []
 				output.append(cur.query)
@@ -407,7 +434,7 @@ class ExecuteQueryButton(npyscreen.ButtonPress):
 		except psycopg2.DatabaseError, e:
 			if psqlCon:
 				psqlCon.rollback()
-			npyscreen.notify_confirm("Error executing query!")	
+			npyscreen.notify_confirm("Error executing query: %s" % e)	
 			
 #Get all values from table
 class BrowseTable(npyscreen.Form):
@@ -436,7 +463,7 @@ class FetchTablesButton(npyscreen.ButtonPress):
 		except psycopg2.DatabaseError, e:
 			if psqlCon:
 				psqlCon.rollback()
-			npyscreen.notify_confirm('Could not fetch table names.')
+			npyscreen.notify_confirm('Could not fetch table names: %s' % e)
 		return
 		
 class BrowseTableButton(npyscreen.ButtonPress):
@@ -459,21 +486,8 @@ class BrowseTableButton(npyscreen.ButtonPress):
 		except psycopg2.DatabaseError, e:
 			if psqlCon:
 				psqlCon.rollback()
-			npyscreen.notify_confirm('Error fetching data from table')
+			npyscreen.notify_confirm('Error fetching data from table: %s' % e)
 		return
-	
-def createPsqlDB(dbname, owner):
-	global psqlAdmin
-	msg = 'Successfully created database ' + dbname
-	try:
-		cur = psqlAdmin.cursor()
-		command = "CREATE DATABASE " + dbname + " WITH OWNER " + owner
-		cur.execute(command)
-	except psycopg2.DatabaseError, e:
-		if psqlAdmin:
-			psqlAdmin.rollback()
-		msg = 'Error creating database: %s' % e
-	return msg
 
 if __name__ == '__main__':
     PA = projectApp()
