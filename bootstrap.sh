@@ -18,6 +18,6 @@ sudo truncate -s 0 "$PG_HBA"
 echo "local    all             all                                  trust" >> "$PG_HBA"
 echo "host    all             all             all                     trust" >> "$PG_HBA"
 service postgresql restart
-git clone https://github.com/megaconle/CS419-cursesUI.git
+sudo -u vagrant git clone https://github.com/megaconle/CS419-cursesUI.git
 cd CS419-cursesUI
 python psqlSampleDB.py
